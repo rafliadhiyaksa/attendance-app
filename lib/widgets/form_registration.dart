@@ -94,7 +94,7 @@ class _FormRegistrationState extends State<FormRegistration> {
         children: [
           //PROFIL PICTURE
           Container(child: ProfilePicture()),
-          SizedBox(height: 32.0),
+          SizedBox(height: 36.0),
 
           //NAMA LENGKAP
           Container(
@@ -353,9 +353,10 @@ class _FormRegistrationState extends State<FormRegistration> {
                 height: 65.0,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                      elevation: 5.0,
+                      onPrimary: primary,
+                      enableFeedback: true,
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8))),
+                          borderRadius: BorderRadius.circular(17))),
                   onPressed: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
@@ -388,7 +389,7 @@ class _FormRegistrationState extends State<FormRegistration> {
           ),
 
           SizedBox(
-            height: 40.0,
+            height: 50.0,
           ),
 
           //TOMBOL
@@ -396,13 +397,15 @@ class _FormRegistrationState extends State<FormRegistration> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
-                width: MediaQuery.of(context).size.width / 3,
-                height: 50.0,
+                width: MediaQuery.of(context).size.width * 0.4,
+                height: 55.0,
                 child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      elevation: 5.0,
+                      primary: Colors.white,
+                      enableFeedback: true,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5),
+                        side: BorderSide(color: primary, width: 3.0),
+                        borderRadius: BorderRadius.circular(15),
                       ),
                     ),
                     onPressed: () {
@@ -410,7 +413,6 @@ class _FormRegistrationState extends State<FormRegistration> {
                       showDialog(
                           context: context,
                           barrierDismissible: false,
-                          routeSettings: RouteSettings(),
                           builder: (context) {
                             return AlertDialog(
                               title: buildText(
@@ -435,16 +437,16 @@ class _FormRegistrationState extends State<FormRegistration> {
                             );
                           });
                     },
-                    child: buildText("Batal", 20, Colors.white)),
+                    child: buildText("Batal", 20, primary)),
               ),
               Container(
-                width: MediaQuery.of(context).size.width / 3,
-                height: 50.0,
+                width: MediaQuery.of(context).size.width * 0.4,
+                height: 55.0,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    elevation: 5.0,
+                    onPrimary: primary,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5),
+                      borderRadius: BorderRadius.circular(15),
                     ),
                   ),
                   onPressed: () {
@@ -496,9 +498,9 @@ class _FormRegistrationState extends State<FormRegistration> {
                           });
                     } else if (!_key.currentState!.validate()) {
                       AlertController.show(
-                        'Warning',
+                        'Error',
                         'Semua Field Harus Terisi',
-                        TypeAlert.warning,
+                        TypeAlert.error,
                       );
                     } else if (ProfilePicture.image == null) {
                       AlertController.show(

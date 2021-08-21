@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:presensi_app/service/face_recognition_service.dart';
+import 'package:supercharged/supercharged.dart';
 
 class AuthActionButton extends StatefulWidget {
   final Future _initializeControllerFuture;
@@ -26,6 +27,7 @@ class _AuthActionButtonState extends State<AuthActionButton> {
       FaceRecognitionService();
 
   bool _buttonClicked = false;
+  final Color primary = '3546AB'.toColor();
 
   _faceRegistration(context) {
     List? predictedData = _faceRecognitionService.predictedData;
@@ -36,18 +38,18 @@ class _AuthActionButtonState extends State<AuthActionButton> {
     Navigator.of(context).pop();
   }
 
-  _login(context) {}
+  // _login(context) {}
 
-  String? _predictUser() {
-    String? user = _faceRecognitionService.predict();
-    return user ?? null;
-  }
+  // String? _predictUser() {
+  //   String? user = _faceRecognitionService.predict();
+  //   return user ?? null;
+  // }
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () async {
-        if (_buttonClicked == false) {
+        if (!_buttonClicked) {
           try {
             //memastikan kamera telah diinisialisasi
             await widget._initializeControllerFuture;
@@ -62,11 +64,6 @@ class _AuthActionButtonState extends State<AuthActionButton> {
               //   var user = _predictUser();
               //   if (user != null) {}
               // }
-
-              // PersistentBottomSheetController bottomSheetController =
-              //     Scaffold.of(context)
-              //         .showBottomSheet((context) => signSheet(context));
-              // bottomSheetController.closed.whenComplete(() => widget.reload!());
             }
           } catch (e) {
             //jika error akan diprint ke konsol
@@ -78,11 +75,11 @@ class _AuthActionButtonState extends State<AuthActionButton> {
       },
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          color: !_buttonClicked ? Colors.indigo : Colors.green,
+          borderRadius: BorderRadius.circular(20),
+          color: !_buttonClicked ? primary : Colors.green,
           boxShadow: <BoxShadow>[
             BoxShadow(
-              color: Colors.blue.withOpacity(0.1),
+              color: Colors.blue.withOpacity(0.2),
               blurRadius: 1,
               offset: Offset(0, 2),
             ),
@@ -90,70 +87,10 @@ class _AuthActionButtonState extends State<AuthActionButton> {
         ),
         alignment: Alignment.center,
         padding: EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-        width: MediaQuery.of(context).size.width * 0.8,
+        width: MediaQuery.of(context).size.width * 0.9,
         height: 60,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(!_buttonClicked ? "Capture" : "Done",
-                style: TextStyle(color: Colors.white)),
-            SizedBox(width: 10),
-            Icon(Icons.camera_alt_rounded, color: Colors.white),
-          ],
-        ),
-      ),
-    );
-  }
-
-  signSheet(context) {
-    return Container(
-      width: MediaQuery.of(context).size.width,
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(30), topRight: Radius.circular(30))),
-      padding: EdgeInsets.all(30),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Container(
-            child: Column(
-              children: [
-                Container(
-                  child: !widget.isLogin
-                      ? buildText("Wajah Anda telah terdeteksi dan terdaftar",
-                          20, Colors.black)
-                      : null,
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                !widget.isLogin
-                    ?
-                    //TOMBOL
-                    Container(
-                        height: 50.0,
-                        width: MediaQuery.of(context).size.width * 0.7,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            elevation: 10.0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                          ),
-                          onPressed: () {
-                            _faceRegistration(context);
-                            // Navigator.of(context).pop();
-                            // Navigator.of(context).pop();
-                          },
-                          child: buildText("DONE", 20, Colors.white),
-                        ),
-                      )
-                    : Container(),
-              ],
-            ),
-          )
-        ],
+        child:
+            buildText(!_buttonClicked ? "Capture" : "Done", 20, Colors.white),
       ),
     );
   }

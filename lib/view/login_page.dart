@@ -55,7 +55,8 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
-    final bottomheight = MediaQuery.of(context).size.height * 0.4;
+    final bottomheight = MediaQuery.of(context).size.height * 0.35;
+    final width = MediaQuery.of(context).size.width;
     return Scaffold(
         backgroundColor: primary,
         body: !loading
@@ -70,11 +71,18 @@ class _LoginState extends State<Login> {
                       Column(
                         children: [
                           SizedBox(
-                            height: bottomheight / 4,
+                            height: bottomheight / 3,
                           ),
-                          buildText("Attendance", 40.0, Colors.white),
+                          Image.asset(
+                            'assets/img/illustration2.png',
+                            width: width * 0.90,
+                          ),
+                          SizedBox(
+                            height: bottomheight / 3,
+                          ),
+                          buildText("Attendance", 35, Colors.white),
                           buildText(
-                              "CV. Destinasi Computindo", 20.0, Colors.white),
+                              "CV. Destinasi Computindo", 18.0, Colors.white),
                           Spacer(),
                         ],
                       ),
@@ -103,23 +111,22 @@ class _LoginState extends State<Login> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                buildText("Login Karyawan", 27.0, Colors.black),
+                                buildText("Login Karyawan", 25.0, Colors.black),
                                 buildText("Masuk Menggunakan Deteksi Wajah",
                                     15.0, '878F95'.toColor()),
                                 SizedBox(
-                                  height: bottomheight / 8,
+                                  height: bottomheight / 9,
                                 ),
                                 Container(
-                                  height: bottomheight / 4,
+                                  height: bottomheight / 3.5,
                                   child: ElevatedButton(
                                     onPressed: () {
                                       Navigator.of(context).push(
                                         MaterialPageRoute(
                                           builder: (BuildContext context) =>
                                               LoginDetection(
-                                            cameraDescription:
-                                                Login.cameraDescription!,
-                                          ),
+                                                  cameraDescription:
+                                                      Login.cameraDescription!),
                                         ),
                                       );
                                     },
@@ -148,7 +155,7 @@ class _LoginState extends State<Login> {
                                   ),
                                 ),
                                 SizedBox(
-                                  height: bottomheight / 7,
+                                  height: bottomheight / 10,
                                 ),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.center,

@@ -7,8 +7,8 @@ import 'package:presensi_app/service/camera_service.dart';
 import 'package:presensi_app/service/face_recognition_service.dart';
 import 'package:presensi_app/service/ml_kit_service.dart';
 import 'package:presensi_app/widgets/auth_action_button.dart';
-import 'package:presensi_app/widgets/camera_header.dart';
 import 'package:presensi_app/widgets/face_painter.dart';
+import 'package:supercharged/supercharged.dart';
 
 class FaceRegistration extends StatefulWidget {
   final CameraDescription cameraDescription;
@@ -23,6 +23,8 @@ class FaceRegistration extends StatefulWidget {
 }
 
 class _FaceRegistrationState extends State<FaceRegistration> {
+  final Color primary = '3546AB'.toColor();
+
   String? imagePath;
   Face? faceDetected;
 
@@ -36,7 +38,6 @@ class _FaceRegistrationState extends State<FaceRegistration> {
   bool cameraInitialized = false;
 
   bool _saving = false;
-  bool _bottomSheetVisible = false;
 
   //service injection
   MLKitService _mlKitService = MLKitService();
@@ -90,7 +91,6 @@ class _FaceRegistrationState extends State<FaceRegistration> {
       imagePath = file.path;
 
       setState(() {
-        _bottomSheetVisible = true;
         pictureTaked = true;
         imagePath = file.path;
       });
@@ -136,17 +136,12 @@ class _FaceRegistrationState extends State<FaceRegistration> {
     });
   }
 
-  _onBackPressed() {
-    Navigator.of(context).pop();
-  }
-
   _reload() {
     setState(() {
-      _bottomSheetVisible = false;
       cameraInitialized = false;
       pictureTaked = false;
     });
-    this._start();
+    // this._start();
   }
 
   @override
@@ -155,77 +150,105 @@ class _FaceRegistrationState extends State<FaceRegistration> {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
     return Scaffold(
-      body: Stack(
-        children: [
-          FutureBuilder<void>(
-            future: _initializeControllerFuture,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.done) {
-                if (pictureTaked) {
-                  return Container(
-                    width: width,
-                    height: height,
-                    child: Transform(
-                      alignment: Alignment.center,
-                      child: FittedBox(
-                        fit: BoxFit.cover,
-                        child: Image.file(File(imagePath!)),
-                      ),
-                      transform: Matrix4.rotationY(mirror),
-                    ),
-                  );
-                } else {
-                  return Transform.scale(
-                    scale: 1.0,
-                    child: AspectRatio(
-                      aspectRatio: MediaQuery.of(context).size.aspectRatio,
-                      child: OverflowBox(
-                        alignment: Alignment.center,
-                        child: FittedBox(
-                          fit: BoxFit.fitHeight,
-                          child: Container(
-                            width: width,
-                            height: width *
-                                _cameraService
-                                    .cameraController!.value.aspectRatio,
-                            child: Stack(
-                              fit: StackFit.expand,
-                              children: <Widget>[
-                                CameraPreview(_cameraService.cameraController!),
-                                CustomPaint(
-                                  painter: FacePainter(
-                                    face: faceDetected,
-                                    imageSize: imageSize,
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                }
-              } else {
-                return Center(child: CircularProgressIndicator());
-              }
+      appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back_rounded),
+            color: primary,
+            iconSize: 35,
+            onPressed: () {
+              Navigator.pop(context);
             },
           ),
-          CameraHeader(
-            title: "Face Registration",
-            onBackPressed: _onBackPressed,
-          )
-        ],
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: !_bottomSheetVisible
-          ? AuthActionButton(
+          title: buildText("Face Registration", 20, primary)),
+      body: Column(
+        children: [
+          SizedBox(
+            height: 15,
+          ),
+          Container(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(25),
+              child: Container(
+                width: width * 0.90,
+                height: height * 0.70,
+                child: FutureBuilder<void>(
+                  future: _initializeControllerFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.done) {
+                      if (pictureTaked) {
+                        return Transform(
+                          alignment: Alignment.center,
+                          child: FittedBox(
+                            fit: BoxFit.cover,
+                            child: Image.file(File(imagePath!)),
+                          ),
+                          transform: Matrix4.rotationY(mirror),
+                        );
+                      } else {
+                        return Transform.scale(
+                          scale: 1.0,
+                          child: AspectRatio(
+                            aspectRatio:
+                                MediaQuery.of(context).size.aspectRatio,
+                            child: FittedBox(
+                              fit: BoxFit.cover,
+                              child: Container(
+                                width: width,
+                                height: width *
+                                    _cameraService
+                                        .cameraController!.value.aspectRatio,
+                                child: Stack(
+                                  fit: StackFit.expand,
+                                  children: [
+                                    CameraPreview(
+                                        _cameraService.cameraController!),
+                                    CustomPaint(
+                                      painter: FacePainter(
+                                        face: faceDetected,
+                                        imageSize: imageSize,
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      }
+                    } else {
+                      return Center(child: CircularProgressIndicator());
+                    }
+                  },
+                ),
+              ),
+            ),
+          ),
+          Container(
+            height: height * 0.16,
+            alignment: Alignment.center,
+            child: AuthActionButton(
               _initializeControllerFuture,
               onPressed: onShoot,
               isLogin: false,
               reload: _reload,
-            )
-          : Container(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Text buildText(String text, double size, Color color) {
+    return Text(
+      text,
+      style: TextStyle(
+        color: color,
+        fontFamily: "ProductSans",
+        fontSize: size,
+        fontWeight: FontWeight.w700,
+      ),
     );
   }
 }

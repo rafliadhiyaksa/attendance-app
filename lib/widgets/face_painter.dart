@@ -16,12 +16,12 @@ class FacePainter extends CustomPainter {
     if (this.face!.headEulerAngleY! > 10 || this.face!.headEulerAngleZ! < -10) {
       paint = Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 3.0
+        ..strokeWidth = 4.0
         ..color = Colors.red;
     } else {
       paint = Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 3.0
+        ..strokeWidth = 4.0
         ..color = Colors.green;
     }
     scaleX = size.width / imageSize.width;
@@ -56,6 +56,6 @@ RRect _scaleRect({
     rect.top.toDouble() * scaleY!,
     widgetSize.width - rect.right.toDouble() * scaleX,
     rect.bottom.toDouble() * scaleY,
-    Radius.circular(10),
+    Radius.circular(20),
   );
 }

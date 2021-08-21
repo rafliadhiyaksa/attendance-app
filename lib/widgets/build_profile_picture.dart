@@ -34,7 +34,7 @@ class _ProfilePictureState extends State<ProfilePicture> {
             alignment: Alignment.center,
             child: CircleAvatar(
               radius: 77,
-              backgroundColor: Colors.grey.withOpacity(0.7),
+              backgroundColor: Colors.grey.withOpacity(0.8),
               backgroundImage: (ProfilePicture.image != null
                   ? FileImage(ProfilePicture.image!)
                   : null),
@@ -50,7 +50,10 @@ class _ProfilePictureState extends State<ProfilePicture> {
             alignment: Alignment.bottomRight,
             child: Container(
               decoration: BoxDecoration(boxShadow: [
-                BoxShadow(blurRadius: 4, color: Colors.grey, spreadRadius: 1)
+                BoxShadow(
+                  blurRadius: 1,
+                  color: Colors.grey,
+                )
               ], borderRadius: BorderRadius.all(Radius.circular(30))),
               child: GestureDetector(
                 onTap: () {

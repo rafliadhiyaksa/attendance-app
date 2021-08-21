@@ -32,20 +32,22 @@ class BuildDropdown extends StatelessWidget {
       autovalidateMode: AutovalidateMode.onUserInteraction,
       decoration: InputDecoration(
         labelText: label,
+        fillColor: Colors.grey.shade200,
+        filled: true,
         labelStyle:
             TextStyle(fontFamily: "ProductSans", fontWeight: FontWeight.w700),
         focusedBorder: OutlineInputBorder(
             borderSide: BorderSide(color: primary, width: 3),
-            borderRadius: BorderRadius.circular(5)),
+            borderRadius: BorderRadius.circular(15)),
         enabledBorder: OutlineInputBorder(
             borderSide: BorderSide(color: primary, width: 3),
-            borderRadius: BorderRadius.circular(5)),
+            borderRadius: BorderRadius.circular(15)),
         errorBorder: OutlineInputBorder(
             borderSide: BorderSide(color: Colors.red, width: 3),
-            borderRadius: BorderRadius.circular(5)),
+            borderRadius: BorderRadius.circular(15)),
         focusedErrorBorder: OutlineInputBorder(
             borderSide: BorderSide(color: Colors.red, width: 3),
-            borderRadius: BorderRadius.circular(5)),
+            borderRadius: BorderRadius.circular(15)),
       ),
     );
   }

@@ -56,6 +56,7 @@ flutter:
   assets:
     - assets/mobilefacenet.tflite
     - assets/img/face-bg.png
+    - assets/img/illustration2.png
     - assets/icon/face-id.png
     - assets/icon/
     - assets/models/face_detection_short_range.tflite
