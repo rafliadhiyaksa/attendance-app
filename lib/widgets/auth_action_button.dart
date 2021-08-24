@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:presensi_app/service/face_recognition_service.dart';
+import 'package:presensi_app/view/home_page.dart';
 import 'package:supercharged/supercharged.dart';
 
 class AuthActionButton extends StatefulWidget {
@@ -29,7 +30,7 @@ class _AuthActionButtonState extends State<AuthActionButton> {
   bool _buttonClicked = false;
   final Color primary = '3546AB'.toColor();
 
-  // _login(context) {}
+  Map<String, dynamic>? predictedKaryawan;
 
   dynamic _predictKaryawan() {
     dynamic karyawan = _faceRecognitionService.predict();
@@ -46,20 +47,19 @@ class _AuthActionButtonState extends State<AuthActionButton> {
             await widget._initializeControllerFuture;
             //onshoot event (ambil gambar dan memprediksi output)
             bool faceDetected = await widget.onPressed();
-            // List predictedData = _faceRecognitionService.predictedData!;
-            // print(predictedData);
 
             if (faceDetected) {
               setState(() {
                 _buttonClicked = !_buttonClicked;
               });
-
               if (widget.isLogin) {
-                var karyawan = _predictKaryawan();
-                // print(karyawan);
-                // if (karyawan != null) {
+                dynamic karyawan = _predictKaryawan();
 
-                // }
+                if (karyawan != null) {
+                  predictedKaryawan = karyawan;
+                } else {
+                  print("tidak ada prediksi wajah");
+                }
               }
             }
           } catch (e) {
@@ -67,7 +67,16 @@ class _AuthActionButtonState extends State<AuthActionButton> {
             print(e);
           }
         } else {
-          Navigator.of(context).pop();
+          if (widget.isLogin) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (BuildContext context) => HomePage(predictedKaryawan!),
+              ),
+            );
+          } else {
+            Navigator.pop(context);
+          }
         }
       },
       child: Container(

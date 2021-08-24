@@ -42,7 +42,7 @@ class _LoginState extends State<Login> {
         camera.lensDirection == CameraLensDirection.front);
 
     //mulai service
-    await _karyawan.getData();
+    await _karyawan.getKaryawan();
     // print(_karyawan.dataKaryawan);
     await _faceRecognitionService.loadModel();
     _mlKitService.initialize();

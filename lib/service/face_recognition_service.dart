@@ -141,8 +141,6 @@ class FaceRecognitionService {
 
   dynamic _searchResult(List predictedData) {
     List<dynamic> data = _karyawan.dataKaryawan;
-    // print(data);
-    // print("data length = " + data.length.toString());
 
     if (data.length == 0) return null;
     double minDist = 999;
@@ -151,7 +149,6 @@ class FaceRecognitionService {
 
     data.forEach(
       (element) {
-        print(jsonDecode(element['face_pict']));
         currDist =
             _euclideanDistance(jsonDecode(element['face_pict']), predictedData);
         if (currDist <= threshold && currDist < minDist) {
@@ -160,7 +157,6 @@ class FaceRecognitionService {
         }
       },
     );
-    print(predRes);
     return predRes;
   }
 

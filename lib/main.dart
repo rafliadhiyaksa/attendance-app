@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_dropdown_alert/dropdown_alert.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:presensi_app/provider/alamat.dart';
+import 'package:presensi_app/widgets/auth_action_button.dart';
 import 'package:supercharged/supercharged.dart';
 import 'package:provider/provider.dart';
 
@@ -80,7 +81,6 @@ class MyApp extends StatelessWidget {
         routes: {
           'login': (context) => Login(),
           'registration': (context) => RegistrationPage(),
-          'homepage': (context) => HomePage(),
         },
       ),
     );

@@ -21,6 +21,12 @@ class Karyawan with ChangeNotifier {
   List<dynamic> _dataKaryawan = [];
   List<dynamic> get dataKaryawan => _dataKaryawan;
 
+  List<dynamic> _dataGender = [];
+  List<dynamic> get dataGender => _dataGender;
+
+  List<dynamic> _dataJabatan = [];
+  List<dynamic> get dataJabatan => _dataJabatan;
+
   void _success(String message) {
     AlertController.show(
       "Success",
@@ -38,29 +44,29 @@ class Karyawan with ChangeNotifier {
   }
 
   ///Post Data Karyawan
-  Future<void> postData(
-    String nama,
-    String email,
-    String tempatLahir,
-    dynamic tanggalLahir,
-    String noHp,
-    String jenisKelamin,
-    String jabatan,
-    String alamat,
-    String provinsi,
-    String kota,
-    String kecamatan,
-    String kelurahan,
-    List facePict,
-  ) async {
+  Future<void> postData({
+    required String nama,
+    required String email,
+    required String tempatLahir,
+    required dynamic tanggalLahir,
+    required String noHp,
+    required String idGender,
+    required dynamic idJabatan,
+    required String alamat,
+    required String provinsi,
+    required String kota,
+    required String kecamatan,
+    required String kelurahan,
+    required List facePict,
+  }) async {
     var request = http.MultipartRequest('POST', Uri.parse(BaseUrl.karyawanAPI));
     request.fields['nama'] = nama;
     request.fields['email'] = email;
     request.fields['tempat_lahir'] = tempatLahir;
     request.fields['tanggal_lahir'] = tanggalLahir;
+    request.fields['id_gender'] = idGender;
     request.fields['no_hp'] = noHp;
-    request.fields['jenis_kelamin'] = jenisKelamin;
-    request.fields['jabatan'] = jabatan;
+    request.fields['id_jabatan'] = idJabatan.toString();
     request.fields['alamat'] = alamat;
     request.fields['provinsi'] = provinsi;
     request.fields['kota_kabupaten'] = kota;
@@ -162,14 +168,24 @@ class Karyawan with ChangeNotifier {
   }
 
   ///Get data karyawan
-  Future<void> getData() async {
+  Future<void> getKaryawan() async {
     var hasilGetData = await http.get(Uri.parse(BaseUrl.karyawanAPI));
     _dataKaryawan = json.decode(hasilGetData.body)['data'];
     notifyListeners();
-    // print(dataKaryawan.map((e) => e));
-    dataKaryawan.forEach((element) {
-      return print(element['face_pict']);
-    });
+  }
+
+  ///get data gender
+  Future<void> getGender() async {
+    var hasilGetData = await http.get(Uri.parse(BaseUrl.genderAPI));
+    _dataGender = json.decode(hasilGetData.body)['data'];
+    notifyListeners();
+  }
+
+  ///get data jabatan
+  Future<void> getJabatan() async {
+    var hasilGetData = await http.get(Uri.parse(BaseUrl.jabatanAPI));
+    _dataJabatan = json.decode(hasilGetData.body)['data'];
+    notifyListeners();
   }
 
   ///Delete data karyawan

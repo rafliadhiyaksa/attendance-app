@@ -45,6 +45,8 @@ class _FormRegistrationState extends State<FormRegistration> {
   dynamic valueGender;
   dynamic valueJabatan;
 
+  dynamic namaGender;
+  dynamic namaJabatan;
   dynamic namaProvinsi;
   dynamic namaKota;
   dynamic namaKecamatan;
@@ -134,19 +136,26 @@ class _FormRegistrationState extends State<FormRegistration> {
 
           //JENIS KELAMIN
           Container(
-            child: BuildDropdown(
-              label: "Jenis Kelamin",
-              value: valueGender,
-              items: <String>[
-                'Laki-laki',
-                'Perempuan',
-              ].map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem(value: value, child: Text(value));
-              }).toList(),
-              onchanged: (value) {
-                setState(() {
-                  valueGender = value;
-                });
+            child: Consumer<Karyawan>(
+              builder: (context, value, child) {
+                return BuildDropdown(
+                  label: "Jenis Kelamin",
+                  value: valueGender,
+                  items: value.dataGender.map((e) {
+                    return DropdownMenuItem(
+                      child: Text(e['gender']),
+                      value: e['id_gender'],
+                      onTap: () {
+                        namaGender = e['gender'];
+                      },
+                    );
+                  }).toList(),
+                  onchanged: (value) {
+                    setState(() {
+                      valueGender = value;
+                    });
+                  },
+                );
               },
             ),
           ),
@@ -154,21 +163,26 @@ class _FormRegistrationState extends State<FormRegistration> {
 
           //JABATAN
           Container(
-            child: BuildDropdown(
-              label: "Jabatan",
-              value: valueJabatan,
-              items: <String>[
-                'Software Developer',
-                'IT Support',
-                'Database Administrator',
-                'Project Manager',
-              ].map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem(value: value, child: Text(value));
-              }).toList(),
-              onchanged: (value) {
-                setState(() {
-                  valueJabatan = value;
-                });
+            child: Consumer<Karyawan>(
+              builder: (context, value, child) {
+                return BuildDropdown(
+                  label: "Jabatan",
+                  value: valueJabatan,
+                  items: value.dataJabatan.map((e) {
+                    return DropdownMenuItem(
+                      child: Text(e['jabatan']),
+                      value: e['id_jabatan'],
+                      onTap: () {
+                        namaJabatan = e['jabatan'];
+                      },
+                    );
+                  }).toList(),
+                  onchanged: (value) {
+                    setState(() {
+                      valueJabatan = value;
+                    });
+                  },
+                );
               },
             ),
           ),
@@ -384,7 +398,7 @@ class _FormRegistrationState extends State<FormRegistration> {
                       ),
                     ),
                     onPressed: () {
-                      karyawanProvider.getData();
+                      karyawanProvider.getKaryawan();
                       print(predictedData);
                       showDialog(
                           context: context,
@@ -449,19 +463,19 @@ class _FormRegistrationState extends State<FormRegistration> {
                                 TextButton(
                                     onPressed: () {
                                       karyawanProvider.postData(
-                                        namaController.text,
-                                        emailController.text,
-                                        tempatLahirController.text,
-                                        dateController.text,
-                                        noHpController.text,
-                                        valueGender,
-                                        valueJabatan,
-                                        alamatController.text,
-                                        namaProvinsi,
-                                        namaKota,
-                                        namaKecamatan,
-                                        namaKelurahan,
-                                        predictedData!,
+                                        nama: namaController.text,
+                                        email: emailController.text,
+                                        tempatLahir: tempatLahirController.text,
+                                        tanggalLahir: dateController.text,
+                                        noHp: noHpController.text,
+                                        idGender: valueGender,
+                                        idJabatan: valueJabatan,
+                                        alamat: alamatController.text,
+                                        provinsi: namaProvinsi,
+                                        kota: namaKota,
+                                        kecamatan: namaKecamatan,
+                                        kelurahan: namaKelurahan,
+                                        facePict: predictedData!,
                                       );
                                       Navigator.of(context).pop();
                                     },

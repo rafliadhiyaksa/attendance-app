@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:presensi_app/provider/alamat.dart';
+import 'package:presensi_app/provider/karyawan.dart';
 import 'package:presensi_app/widgets/form_registration.dart';
 import 'package:provider/provider.dart';
 
@@ -34,6 +35,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
   void didChangeDependencies() {
     if (isInit) {
       Provider.of<Alamat>(context, listen: false).getProvinsi();
+      Provider.of<Karyawan>(context, listen: false).getGender();
+      Provider.of<Karyawan>(context, listen: false).getJabatan();
     }
     isInit = false;
     super.didChangeDependencies();

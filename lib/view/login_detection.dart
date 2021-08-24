@@ -54,6 +54,7 @@ class _LoginDetectionState extends State<LoginDetection> {
 
   @override
   void dispose() {
+    this._faceRecognitionService.setPredictedData(null);
     _cameraService.dispose();
     super.dispose();
   }
