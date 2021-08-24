@@ -18,37 +18,52 @@ class BuildDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DropdownButtonFormField(
-      value: value,
-      items: items,
-      isExpanded: true,
-      onChanged: onchanged,
-      validator: (value) => value == null ? "Required*" : null,
-      style: TextStyle(
-        fontFamily: "ProductSans",
-        fontWeight: FontWeight.w700,
-        color: Colors.black,
-      ),
-      autovalidateMode: AutovalidateMode.onUserInteraction,
-      decoration: InputDecoration(
-        labelText: label,
-        fillColor: Colors.grey.shade200,
-        filled: true,
-        labelStyle:
-            TextStyle(fontFamily: "ProductSans", fontWeight: FontWeight.w700),
-        focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: primary, width: 3),
-            borderRadius: BorderRadius.circular(15)),
-        enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: primary, width: 3),
-            borderRadius: BorderRadius.circular(15)),
-        errorBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.red, width: 3),
-            borderRadius: BorderRadius.circular(15)),
-        focusedErrorBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.red, width: 3),
-            borderRadius: BorderRadius.circular(15)),
-      ),
+    return Column(
+      children: [
+        Container(
+          alignment: Alignment.centerLeft,
+          margin: EdgeInsetsDirectional.only(start: 4.0),
+          child: Text(
+            this.label,
+            style: TextStyle(fontSize: 15),
+          ),
+        ),
+        SizedBox(
+          height: 5.0,
+        ),
+        DropdownButtonFormField(
+          value: value,
+          items: items,
+          isExpanded: true,
+          onChanged: onchanged,
+          validator: (value) => value == null ? "Required*" : null,
+          style: TextStyle(
+            fontFamily: "ProductSans",
+            fontWeight: FontWeight.w700,
+            color: Colors.black,
+          ),
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          decoration: InputDecoration(
+            hintText: label,
+            fillColor: Colors.grey.shade300,
+            filled: true,
+            hintStyle: TextStyle(
+                fontFamily: "ProductSans", fontWeight: FontWeight.w700),
+            focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.grey.shade300),
+                borderRadius: BorderRadius.circular(15)),
+            enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.grey.shade300),
+                borderRadius: BorderRadius.circular(15)),
+            errorBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.red, width: 2),
+                borderRadius: BorderRadius.circular(15)),
+            focusedErrorBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.red, width: 2),
+                borderRadius: BorderRadius.circular(15)),
+          ),
+        ),
+      ],
     );
   }
 }

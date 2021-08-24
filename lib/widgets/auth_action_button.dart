@@ -29,21 +29,12 @@ class _AuthActionButtonState extends State<AuthActionButton> {
   bool _buttonClicked = false;
   final Color primary = '3546AB'.toColor();
 
-  _faceRegistration(context) {
-    List? predictedData = _faceRecognitionService.predictedData;
-
-    print(predictedData!.length);
-    print(predictedData);
-
-    Navigator.of(context).pop();
-  }
-
   // _login(context) {}
 
-  // String? _predictUser() {
-  //   String? user = _faceRecognitionService.predict();
-  //   return user ?? null;
-  // }
+  dynamic _predictKaryawan() {
+    dynamic karyawan = _faceRecognitionService.predict();
+    return karyawan ?? null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,15 +46,21 @@ class _AuthActionButtonState extends State<AuthActionButton> {
             await widget._initializeControllerFuture;
             //onshoot event (ambil gambar dan memprediksi output)
             bool faceDetected = await widget.onPressed();
+            // List predictedData = _faceRecognitionService.predictedData!;
+            // print(predictedData);
 
             if (faceDetected) {
               setState(() {
                 _buttonClicked = !_buttonClicked;
               });
-              // if (widget.isLogin) {
-              //   var user = _predictUser();
-              //   if (user != null) {}
-              // }
+
+              if (widget.isLogin) {
+                var karyawan = _predictKaryawan();
+                // print(karyawan);
+                // if (karyawan != null) {
+
+                // }
+              }
             }
           } catch (e) {
             //jika error akan diprint ke konsol
@@ -104,10 +101,5 @@ class _AuthActionButtonState extends State<AuthActionButton> {
           fontSize: size,
           fontWeight: FontWeight.w700),
     );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 }

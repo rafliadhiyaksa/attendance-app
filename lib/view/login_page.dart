@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:presensi_app/provider/karyawan.dart';
 import 'package:presensi_app/service/face_recognition_service.dart';
 import 'package:presensi_app/service/ml_kit_service.dart';
 import 'package:presensi_app/view/login_detection.dart';
@@ -16,6 +17,7 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> {
   //Service Injection
+  Karyawan _karyawan = Karyawan();
   FaceRecognitionService _faceRecognitionService = FaceRecognitionService();
   MLKitService _mlKitService = MLKitService();
 
@@ -40,6 +42,8 @@ class _LoginState extends State<Login> {
         camera.lensDirection == CameraLensDirection.front);
 
     //mulai service
+    await _karyawan.getData();
+    // print(_karyawan.dataKaryawan);
     await _faceRecognitionService.loadModel();
     _mlKitService.initialize();
 

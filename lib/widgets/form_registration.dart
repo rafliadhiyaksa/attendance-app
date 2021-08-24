@@ -1,9 +1,6 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_dropdown_alert/alert_controller.dart';
 import 'package:flutter_dropdown_alert/model/data_alert.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:presensi_app/service/face_recognition_service.dart';
 import 'package:presensi_app/view/face_registration.dart';
 import 'package:presensi_app/view/login_page.dart';
@@ -53,19 +50,6 @@ class _FormRegistrationState extends State<FormRegistration> {
   dynamic namaKecamatan;
   dynamic namaKelurahan;
 
-  Timer? _timer;
-
-  @override
-  void initState() {
-    super.initState();
-    EasyLoading.addStatusCallback((status) {
-      print('EasyLoading Status $status');
-      if (status == EasyLoadingStatus.dismiss) {
-        _timer?.cancel();
-      }
-    });
-  }
-
   @override
   void dispose() {
     this._profilePicture.setValueImage(null);
@@ -73,27 +57,18 @@ class _FormRegistrationState extends State<FormRegistration> {
     super.dispose();
   }
 
-  void validate() {
-    if (_key.currentState!.validate()) {
-      print("validated");
-    } else {
-      print("Not validated");
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final karyawanProvider = Provider.of<Karyawan>(context, listen: false);
     final alamatProvider = Provider.of<Alamat>(context, listen: false);
     List? predictedData = _faceRecognitionService.predictedData;
-
+    print("REbuild");
     return Form(
       key: _key,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
       child: Column(
         children: [
           //PROFIL PICTURE
-          Container(child: ProfilePicture()),
+          Container(child: _profilePicture),
           SizedBox(height: 36.0),
 
           //NAMA LENGKAP
@@ -103,7 +78,7 @@ class _FormRegistrationState extends State<FormRegistration> {
             controller: namaController,
             validator: RequiredValidator(errorText: "Required*"),
           )),
-          SizedBox(height: 32.0),
+          SizedBox(height: 20.0),
 
           //EMAIL ID
           Container(
@@ -116,7 +91,7 @@ class _FormRegistrationState extends State<FormRegistration> {
               EmailValidator(errorText: "Not a valid Email"),
             ]),
           )),
-          SizedBox(height: 32.0),
+          SizedBox(height: 20.0),
 
           //TEMPAT LAHIR
           Container(
@@ -125,7 +100,7 @@ class _FormRegistrationState extends State<FormRegistration> {
             controller: tempatLahirController,
             validator: RequiredValidator(errorText: "Required*"),
           )),
-          SizedBox(height: 32.0),
+          SizedBox(height: 20.0),
 
           //TANGGAL LAHIR
           Container(
@@ -145,7 +120,7 @@ class _FormRegistrationState extends State<FormRegistration> {
               dateController.text = date.toString().substring(0, 10);
             },
           )),
-          SizedBox(height: 32.0),
+          SizedBox(height: 20.0),
 
           //NOMOR HANDPHONE
           Container(
@@ -155,7 +130,7 @@ class _FormRegistrationState extends State<FormRegistration> {
             controller: noHpController,
             validator: RequiredValidator(errorText: "Required*"),
           )),
-          SizedBox(height: 32.0),
+          SizedBox(height: 20.0),
 
           //JENIS KELAMIN
           Container(
@@ -175,7 +150,7 @@ class _FormRegistrationState extends State<FormRegistration> {
               },
             ),
           ),
-          SizedBox(height: 32.0),
+          SizedBox(height: 20.0),
 
           //JABATAN
           Container(
@@ -202,22 +177,22 @@ class _FormRegistrationState extends State<FormRegistration> {
           // ---------ALAMAT----------
           Row(
             children: [
-              Container(
-                padding: EdgeInsets.only(right: 15),
-                child: Text(
-                  "Alamat",
-                  style: TextStyle(fontSize: 18),
-                ),
-              ),
               Expanded(
                 child: Divider(
                   thickness: 2,
                   color: Colors.grey,
                 ),
-              )
+              ),
+              Container(
+                padding: EdgeInsets.only(left: 15),
+                child: Text(
+                  "Alamat",
+                  style: TextStyle(fontSize: 18),
+                ),
+              ),
             ],
           ),
-          SizedBox(height: 25.0),
+          SizedBox(height: 20.0),
 
           // ALAMAT
           Container(
@@ -231,7 +206,7 @@ class _FormRegistrationState extends State<FormRegistration> {
               validator: RequiredValidator(errorText: "Required*"),
             ),
           ),
-          SizedBox(height: 32.0),
+          SizedBox(height: 20.0),
 
           // PROVINSI
           Container(
@@ -262,7 +237,7 @@ class _FormRegistrationState extends State<FormRegistration> {
               },
             ),
           ),
-          SizedBox(height: 32.0),
+          SizedBox(height: 20.0),
 
           // KABUPATEN / KOTA
           Container(child: Consumer<Alamat>(
@@ -290,7 +265,7 @@ class _FormRegistrationState extends State<FormRegistration> {
               );
             },
           )),
-          SizedBox(height: 32.0),
+          SizedBox(height: 20.0),
 
           //KECAMATAN
           Container(child: Consumer<Alamat>(
@@ -317,7 +292,7 @@ class _FormRegistrationState extends State<FormRegistration> {
               );
             },
           )),
-          SizedBox(height: 32.0),
+          SizedBox(height: 20.0),
 
           ///INPUT KELURAHAN
           Container(child: Consumer<Alamat>(
@@ -342,7 +317,7 @@ class _FormRegistrationState extends State<FormRegistration> {
               );
             },
           )),
-          SizedBox(height: 32.0),
+          SizedBox(height: 30.0),
 
           //Face Registration
           Row(
@@ -409,6 +384,7 @@ class _FormRegistrationState extends State<FormRegistration> {
                       ),
                     ),
                     onPressed: () {
+                      karyawanProvider.getData();
                       print(predictedData);
                       showDialog(
                           context: context,
@@ -472,7 +448,7 @@ class _FormRegistrationState extends State<FormRegistration> {
                                     child: buildText("Tidak", 15, primary)),
                                 TextButton(
                                     onPressed: () {
-                                      karyawanProvider.registerData(
+                                      karyawanProvider.postData(
                                         namaController.text,
                                         emailController.text,
                                         tempatLahirController.text,
@@ -487,9 +463,6 @@ class _FormRegistrationState extends State<FormRegistration> {
                                         namaKelurahan,
                                         predictedData!,
                                       );
-                                      this
-                                          ._faceRecognitionService
-                                          .setPredictedData(null);
                                       Navigator.of(context).pop();
                                     },
                                     child: buildText("Ya", 15, primary)),
@@ -506,13 +479,13 @@ class _FormRegistrationState extends State<FormRegistration> {
                       AlertController.show(
                         'Warning',
                         'Harus Menyertakan Foto Profil',
-                        TypeAlert.warning,
+                        TypeAlert.error,
                       );
                     } else {
                       AlertController.show(
                         'Warning',
                         'Harus Mendaftarkan Wajah',
-                        TypeAlert.warning,
+                        TypeAlert.error,
                       );
                     }
                   },
@@ -537,3 +510,5 @@ class _FormRegistrationState extends State<FormRegistration> {
     );
   }
 }
+
+class ChangeForm with ChangeNotifier {}

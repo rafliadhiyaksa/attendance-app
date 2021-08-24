@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 
@@ -23,10 +24,10 @@ class FaceRecognitionService {
   List? _predictedData;
   List? get predictedData => this._predictedData;
 
-  Karyawan _databaseKaryawan = Karyawan();
+  Karyawan _karyawan = Karyawan();
 
   //data user yang tersimpan
-  dynamic data = {};
+  dynamic data = [];
 
   Future loadModel() async {
     try {
@@ -66,7 +67,7 @@ class FaceRecognitionService {
     this._predictedData = List.from(output);
   }
 
-  String? predict() {
+  dynamic predict() {
     return _searchResult(this._predictedData!);
   }
 
@@ -138,21 +139,28 @@ class FaceRecognitionService {
     return convertedBytes.buffer.asFloat32List();
   }
 
-  String? _searchResult(List predictedData) {
-    Map<String, dynamic> data = _databaseKaryawan.dataKaryawan;
+  dynamic _searchResult(List predictedData) {
+    List<dynamic> data = _karyawan.dataKaryawan;
+    // print(data);
+    // print("data length = " + data.length.toString());
 
     if (data.length == 0) return null;
     double minDist = 999;
     double currDist = 0.0;
-    String? predRes;
+    dynamic predRes;
 
-    for (String label in data.keys) {
-      currDist = _euclideanDistance(data[label], predictedData);
-      if (currDist <= threshold && currDist < minDist) {
-        minDist = currDist;
-        predRes = label;
-      }
-    }
+    data.forEach(
+      (element) {
+        print(jsonDecode(element['face_pict']));
+        currDist =
+            _euclideanDistance(jsonDecode(element['face_pict']), predictedData);
+        if (currDist <= threshold && currDist < minDist) {
+          minDist = currDist;
+          predRes = element;
+        }
+      },
+    );
+    print(predRes);
     return predRes;
   }
 

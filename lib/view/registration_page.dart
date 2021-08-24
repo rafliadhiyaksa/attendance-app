@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:presensi_app/provider/alamat.dart';
 import 'package:presensi_app/widgets/form_registration.dart';
 import 'package:provider/provider.dart';
@@ -16,10 +17,23 @@ class _RegistrationPageState extends State<RegistrationPage> {
   Color primary = '3546AB'.toColor();
   bool isInit = true;
 
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    EasyLoading.addStatusCallback((status) {
+      print('EasyLoading Status $status');
+      if (status == EasyLoadingStatus.dismiss) {
+        _timer?.cancel();
+      }
+    });
+  }
+
   @override
   void didChangeDependencies() {
     if (isInit) {
-      Provider.of<Alamat>(context).getProvinsi();
+      Provider.of<Alamat>(context, listen: false).getProvinsi();
     }
     isInit = false;
     super.didChangeDependencies();

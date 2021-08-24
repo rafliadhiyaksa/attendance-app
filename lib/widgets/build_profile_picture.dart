@@ -26,22 +26,22 @@ class _ProfilePictureState extends State<ProfilePicture> {
   @override
   Widget build(BuildContext context) {
     return CircleAvatar(
-      radius: 80,
+      radius: 85,
       backgroundColor: primary,
       child: Stack(
         children: [
           Container(
             alignment: Alignment.center,
             child: CircleAvatar(
-              radius: 77,
-              backgroundColor: Colors.grey.withOpacity(0.8),
+              radius: 82,
+              backgroundColor: Colors.grey.shade300,
               backgroundImage: (ProfilePicture.image != null
                   ? FileImage(ProfilePicture.image!)
                   : null),
               child: (ProfilePicture.image == null
                   ? Icon(
                       Icons.person,
-                      size: 50,
+                      size: 40,
                     )
                   : null),
             ),
@@ -52,7 +52,7 @@ class _ProfilePictureState extends State<ProfilePicture> {
               decoration: BoxDecoration(boxShadow: [
                 BoxShadow(
                   blurRadius: 1,
-                  color: Colors.grey,
+                  color: Colors.grey.shade500,
                 )
               ], borderRadius: BorderRadius.all(Radius.circular(30))),
               child: GestureDetector(

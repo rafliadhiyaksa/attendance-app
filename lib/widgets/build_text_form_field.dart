@@ -31,44 +31,60 @@ class BuildTextFormField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      maxLength: maxlength,
-      readOnly: this.readOnly,
-      controller: this.controller,
-      onTap: this.ontap,
-      validator: this.validator,
-      maxLines: this.maxlines,
-      obscureText: this.isPassword,
-      cursorColor: this.primary,
-      keyboardType: this.type,
-      textInputAction: TextInputAction.next,
-      minLines: minlines,
-      style: TextStyle(fontFamily: "ProductSans", fontWeight: FontWeight.w700),
-      decoration: InputDecoration(
-        labelText: this.text,
-        alignLabelWithHint: true,
-        fillColor: Colors.grey.shade200,
-        filled: true,
-        labelStyle:
-            TextStyle(fontFamily: "ProductSans", fontWeight: FontWeight.w700),
-        border: OutlineInputBorder(
-            borderSide: BorderSide(color: primary, width: 3),
-            borderRadius: BorderRadius.circular(15)),
-        focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: primary, width: 3),
-            borderRadius: BorderRadius.circular(15)),
-        enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: primary, width: 3),
-            borderRadius: BorderRadius.circular(15)),
-        errorBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.red, width: 3),
-            borderRadius: BorderRadius.circular(15)),
-        focusedErrorBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.red, width: 3),
-            borderRadius: BorderRadius.circular(15)),
-        prefixIcon: this.prefixicon,
-        suffixIcon: this.suffixicon,
-      ),
+    return Column(
+      children: [
+        Container(
+          alignment: Alignment.centerLeft,
+          margin: EdgeInsetsDirectional.only(start: 4.0),
+          child: Text(
+            this.text,
+            style: TextStyle(fontSize: 15),
+          ),
+        ),
+        SizedBox(
+          height: 5.0,
+        ),
+        TextFormField(
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          maxLength: maxlength,
+          readOnly: this.readOnly,
+          controller: this.controller,
+          onTap: this.ontap,
+          validator: this.validator,
+          maxLines: this.maxlines,
+          obscureText: this.isPassword,
+          cursorColor: this.primary,
+          keyboardType: this.type,
+          textInputAction: TextInputAction.next,
+          minLines: minlines,
+          style:
+              TextStyle(fontFamily: "ProductSans", fontWeight: FontWeight.w700),
+          decoration: InputDecoration(
+            hintText: this.text,
+            alignLabelWithHint: true,
+            fillColor: Colors.grey.shade300,
+            filled: true,
+            labelStyle: TextStyle(
+                fontFamily: "ProductSans", fontWeight: FontWeight.w700),
+            border: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.grey.shade300),
+                borderRadius: BorderRadius.circular(15)),
+            focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.grey.shade300),
+                borderRadius: BorderRadius.circular(15)),
+            enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.grey.shade300),
+                borderRadius: BorderRadius.circular(15)),
+            errorBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.red, width: 2),
+                borderRadius: BorderRadius.circular(15)),
+            focusedErrorBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.red, width: 2),
+                borderRadius: BorderRadius.circular(15)),
+            suffixIcon: this.suffixicon,
+          ),
+        ),
+      ],
     );
   }
 }

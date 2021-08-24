@@ -13,10 +13,7 @@ import 'package:supercharged/supercharged.dart';
 class FaceRegistration extends StatefulWidget {
   final CameraDescription cameraDescription;
 
-  const FaceRegistration({
-    Key? key,
-    required this.cameraDescription,
-  }) : super(key: key);
+  FaceRegistration({required this.cameraDescription});
 
   @override
   _FaceRegistrationState createState() => _FaceRegistrationState();
@@ -172,7 +169,7 @@ class _FaceRegistrationState extends State<FaceRegistration> {
               borderRadius: BorderRadius.circular(25),
               child: Container(
                 width: width * 0.90,
-                height: height * 0.70,
+                height: height * 0.7,
                 child: FutureBuilder<void>(
                   future: _initializeControllerFuture,
                   builder: (context, snapshot) {
