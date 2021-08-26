@@ -101,9 +101,8 @@ class Karyawan with ChangeNotifier {
       EasyLoading.dismiss();
       _failed(
           "Error " + response.statusCode.toString(), _dataResponse['message']);
-      print("Gagal");
     }
-    EasyLoading.dismiss();
+    // EasyLoading.dismiss();
   }
 
   ///Edit data karyawan
@@ -169,8 +168,9 @@ class Karyawan with ChangeNotifier {
 
   ///Get data karyawan
   Future<void> getKaryawan() async {
-    var hasilGetData = await http.get(Uri.parse(BaseUrl.karyawanAPI));
-    _dataKaryawan = json.decode(hasilGetData.body)['data'];
+    var response = await http.get(Uri.parse(BaseUrl.karyawanAPI));
+
+    _dataKaryawan = json.decode(response.body)['data'];
     notifyListeners();
   }
 

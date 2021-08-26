@@ -170,6 +170,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.7.0"
+  google_nav_bar:
+    dependency: "direct main"
+    description:
+      name: google_nav_bar
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "5.0.5"
   http:
     dependency: "direct main"
     description:
@@ -220,7 +227,7 @@ packages:
     source: hosted
     version: "2.2.0"
   intl:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: intl
       url: "https://pub.dartlang.org"
@@ -354,6 +361,13 @@ packages:
     dependency: transitive
     description:
       name: supercharged_dart
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.0"
+  system_settings:
+    dependency: "direct main"
+    description:
+      name: system_settings
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.0"

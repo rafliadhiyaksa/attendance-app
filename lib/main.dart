@@ -3,11 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_dropdown_alert/dropdown_alert.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:presensi_app/provider/alamat.dart';
-import 'package:presensi_app/widgets/auth_action_button.dart';
 import 'package:supercharged/supercharged.dart';
 import 'package:provider/provider.dart';
 
-import 'package:presensi_app/view/home_page.dart';
 import 'package:presensi_app/view/login_page.dart';
 import 'package:presensi_app/provider/karyawan.dart';
 import 'package:presensi_app/view/registration_page.dart';
@@ -15,6 +13,9 @@ import 'package:presensi_app/view/registration_page.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  SystemChrome.setSystemUIOverlayStyle(
+    SystemUiOverlayStyle(statusBarColor: Colors.transparent),
+  );
 
   runApp(MyApp());
   configLoading();

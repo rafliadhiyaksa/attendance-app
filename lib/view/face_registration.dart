@@ -6,7 +6,6 @@ import 'package:google_ml_kit/google_ml_kit.dart';
 import 'package:presensi_app/service/camera_service.dart';
 import 'package:presensi_app/service/face_recognition_service.dart';
 import 'package:presensi_app/service/ml_kit_service.dart';
-import 'package:presensi_app/widgets/auth_action_button.dart';
 import 'package:presensi_app/widgets/face_painter.dart';
 import 'package:supercharged/supercharged.dart';
 
@@ -35,6 +34,7 @@ class _FaceRegistrationState extends State<FaceRegistration> {
   bool cameraInitialized = false;
 
   bool _saving = false;
+  bool _buttonClicked = false;
 
   //service injection
   MLKitService _mlKitService = MLKitService();
@@ -137,6 +137,7 @@ class _FaceRegistrationState extends State<FaceRegistration> {
     setState(() {
       cameraInitialized = false;
       pictureTaked = false;
+      _buttonClicked = false;
     });
     // this._start();
   }
@@ -152,19 +153,18 @@ class _FaceRegistrationState extends State<FaceRegistration> {
           elevation: 0,
           leading: IconButton(
             icon: Icon(Icons.arrow_back_rounded),
-            color: primary,
+            color: Colors.black,
             iconSize: 35,
             onPressed: () {
               Navigator.pop(context);
             },
           ),
-          title: buildText("Face Registration", 20, primary)),
+          title: buildText("Face Registration", 24, Colors.black)),
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          SizedBox(
-            height: 15,
-          ),
           Container(
+            alignment: Alignment.center,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(25),
               child: Container(
@@ -223,13 +223,60 @@ class _FaceRegistrationState extends State<FaceRegistration> {
             ),
           ),
           Container(
-            height: height * 0.16,
             alignment: Alignment.center,
-            child: AuthActionButton(
-              _initializeControllerFuture,
-              onPressed: onShoot,
-              isLogin: false,
-              reload: _reload,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                IconButton(
+                    onPressed: () {},
+                    icon: Icon(
+                      Icons.info_outline_rounded,
+                      size: 30,
+                    )),
+                ElevatedButton(
+                  child: Container(
+                      child: !_buttonClicked
+                          ? Image(
+                              image: AssetImage('assets/icon/face-id.png'),
+                              width: 25,
+                            )
+                          : Icon(Icons.done_rounded,
+                              size: 25, color: Colors.white)),
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.all(20),
+                    primary: !_buttonClicked ? primary : Colors.green,
+                    enableFeedback: true,
+                    shape: CircleBorder(),
+                  ),
+                  onPressed: () async {
+                    if (!_buttonClicked) {
+                      try {
+                        await _initializeControllerFuture;
+                        bool isFaceDetected = await onShoot();
+                        if (isFaceDetected) {
+                          setState(() {
+                            _buttonClicked = !_buttonClicked;
+                          });
+                        }
+                      } catch (e) {
+                        print(e);
+                      }
+                    } else {
+                      Navigator.pop(context);
+                    }
+                  },
+                ),
+                IconButton(
+                  onPressed: () {
+                    _reload();
+                    _start();
+                  },
+                  icon: Icon(
+                    Icons.refresh_rounded,
+                    size: 30,
+                  ),
+                ),
+              ],
             ),
           ),
         ],

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:presensi_app/service/face_recognition_service.dart';
-import 'package:presensi_app/view/home_page.dart';
+import 'package:presensi_app/widgets/navigation_bar.dart';
 import 'package:supercharged/supercharged.dart';
 
 class AuthActionButton extends StatefulWidget {
@@ -54,11 +54,23 @@ class _AuthActionButtonState extends State<AuthActionButton> {
               });
               if (widget.isLogin) {
                 dynamic karyawan = _predictKaryawan();
-
+                // print(karyawan);
                 if (karyawan != null) {
                   predictedKaryawan = karyawan;
+                  print(predictedKaryawan);
                 } else {
                   print("tidak ada prediksi wajah");
+                  setState(() {
+                    _buttonClicked = !_buttonClicked;
+                  });
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        content: Text('Wajah Belum Terdaftar'),
+                      );
+                    },
+                  );
                 }
               }
             }
@@ -71,7 +83,8 @@ class _AuthActionButtonState extends State<AuthActionButton> {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (BuildContext context) => HomePage(predictedKaryawan!),
+                builder: (BuildContext context) =>
+                    NavigationBar(predictedKaryawan!),
               ),
             );
           } else {

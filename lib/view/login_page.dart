@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:system_settings/system_settings.dart';
+import 'package:supercharged/supercharged.dart';
+
 import 'package:presensi_app/provider/karyawan.dart';
 import 'package:presensi_app/service/face_recognition_service.dart';
 import 'package:presensi_app/service/ml_kit_service.dart';
 import 'package:presensi_app/view/login_detection.dart';
-
-import 'package:supercharged/supercharged.dart';
 
 class Login extends StatefulWidget {
   static CameraDescription? _cameraDescription;
@@ -42,8 +43,69 @@ class _LoginState extends State<Login> {
         camera.lensDirection == CameraLensDirection.front);
 
     //mulai service
-    await _karyawan.getKaryawan();
-    // print(_karyawan.dataKaryawan);
+    try {
+      await _karyawan.getKaryawan();
+    } catch (e) {
+      showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return Container(
+            height: MediaQuery.of(context).size.height * 0.35,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Text("Koneksi Gagal"),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Container(
+                      width: MediaQuery.of(context).size.width * 0.35,
+                      height: 45.0,
+                      child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            primary: primary,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                          ),
+                          onPressed: () {
+                            _startUp();
+                            Navigator.pop(context);
+                          },
+                          child: Text(
+                            "Retry",
+                            style: TextStyle(fontSize: 20),
+                          )),
+                    ),
+                    Container(
+                      width: MediaQuery.of(context).size.width * 0.35,
+                      height: 45.0,
+                      child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            primary: primary,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                          ),
+                          onPressed: () => SystemSettings.wireless(),
+                          child: Text(
+                            "Setting",
+                            style: TextStyle(fontSize: 20),
+                          )),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
+        // shape: ,
+        enableDrag: false,
+        isDismissible: false,
+        barrierColor: Colors.black45,
+      );
+      throw e;
+    }
     await _faceRecognitionService.loadModel();
     _mlKitService.initialize();
 

@@ -91,6 +91,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
           ),
         ),
       ),
+      extendBody: true,
     );
   }
 

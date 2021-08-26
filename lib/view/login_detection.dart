@@ -8,6 +8,7 @@ import 'package:presensi_app/service/face_recognition_service.dart';
 import 'package:presensi_app/service/ml_kit_service.dart';
 import 'package:presensi_app/widgets/auth_action_button.dart';
 import 'package:presensi_app/widgets/face_painter.dart';
+import 'package:presensi_app/widgets/navigation_bar.dart';
 import 'package:supercharged/supercharged.dart';
 
 class LoginDetection extends StatefulWidget {
@@ -38,6 +39,9 @@ class _LoginDetectionState extends State<LoginDetection> {
   bool cameraInitialized = false;
 
   bool _saving = false;
+  bool _buttonClicked = false;
+
+  Map<String, dynamic>? predictedKaryawan;
 
   //service injection
   MLKitService _mlKitService = MLKitService();
@@ -137,10 +141,16 @@ class _LoginDetectionState extends State<LoginDetection> {
     });
   }
 
+  dynamic _predictKaryawan() {
+    dynamic karyawan = _faceRecognitionService.predict();
+    return karyawan ?? null;
+  }
+
   _reload() {
     setState(() {
       cameraInitialized = false;
       pictureTaked = false;
+      _buttonClicked = false;
     });
     // this._start();
   }
@@ -156,19 +166,18 @@ class _LoginDetectionState extends State<LoginDetection> {
           elevation: 0,
           leading: IconButton(
             icon: Icon(Icons.arrow_back_rounded),
-            color: primary,
+            color: Colors.black,
             iconSize: 35,
             onPressed: () {
               Navigator.pop(context);
             },
           ),
-          title: buildText("Face Login", 20, primary)),
+          title: buildText("Face Login", 24, Colors.black)),
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          SizedBox(
-            height: 15,
-          ),
           Container(
+            alignment: Alignment.center,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(25),
               child: Container(
@@ -227,15 +236,102 @@ class _LoginDetectionState extends State<LoginDetection> {
             ),
           ),
           Container(
-            height: height * 0.16,
             alignment: Alignment.center,
-            child: AuthActionButton(
-              _initializeControllerFuture,
-              onPressed: onShoot,
-              isLogin: true,
-              reload: _reload,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ///tombol informasi
+                IconButton(
+                  onPressed: () {},
+                  icon: Icon(
+                    Icons.info_outline_rounded,
+                    size: 30,
+                  ),
+                ),
+
+                ///tombol capture
+                ElevatedButton(
+                  child: Container(
+                      child: !_buttonClicked
+                          ? Image(
+                              image: AssetImage('assets/icon/face-id.png'),
+                              width: 25,
+                            )
+                          : Icon(Icons.done_rounded,
+                              size: 25, color: Colors.white)),
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.all(20),
+                    primary: !_buttonClicked ? primary : Colors.green,
+                    enableFeedback: true,
+                    shape: CircleBorder(),
+                  ),
+                  onPressed: () async {
+                    if (!_buttonClicked) {
+                      try {
+                        await _initializeControllerFuture;
+                        bool isFaceDetected = await onShoot();
+                        if (isFaceDetected) {
+                          setState(() {
+                            _buttonClicked = !_buttonClicked;
+                          });
+                          dynamic karyawan = _predictKaryawan();
+                          if (karyawan != null) {
+                            predictedKaryawan = karyawan;
+                            print(predictedKaryawan);
+                          } else {
+                            print("tidak ada prediksi wajah");
+                            setState(() {
+                              _buttonClicked = !_buttonClicked;
+                            });
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  content: Text('Wajah Belum Terdaftar'),
+                                );
+                              },
+                            );
+                          }
+                        }
+                      } catch (e) {
+                        print(e);
+                      }
+                    } else {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (BuildContext context) =>
+                              NavigationBar(predictedKaryawan!),
+                        ),
+                      );
+                    }
+                  },
+                ),
+
+                ///tombol refresh
+                IconButton(
+                  onPressed: () {
+                    _reload();
+                    _start();
+                  },
+                  icon: Icon(
+                    Icons.refresh_rounded,
+                    size: 30,
+                  ),
+                ),
+              ],
             ),
           ),
+          // Container(
+          //   height: height * 0.16,
+          //   alignment: Alignment.center,
+          //   child: AuthActionButton(
+          //     _initializeControllerFuture,
+          //     onPressed: onShoot,
+          //     isLogin: true,
+          //     reload: _reload,
+          //   ),
+          // ),
         ],
       ),
     );
@@ -248,7 +344,7 @@ class _LoginDetectionState extends State<LoginDetection> {
         color: color,
         fontFamily: "ProductSans",
         fontSize: size,
-        fontWeight: FontWeight.w700,
+        fontWeight: FontWeight.bold,
       ),
     );
   }
