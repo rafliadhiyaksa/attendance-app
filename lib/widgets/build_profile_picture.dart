@@ -26,14 +26,14 @@ class _ProfilePictureState extends State<ProfilePicture> {
   @override
   Widget build(BuildContext context) {
     return CircleAvatar(
-      radius: 85,
+      radius: 80,
       backgroundColor: primary,
       child: Stack(
         children: [
           Container(
             alignment: Alignment.center,
             child: CircleAvatar(
-              radius: 82,
+              radius: 77,
               backgroundColor: Colors.grey.shade300,
               backgroundImage: (ProfilePicture.image != null
                   ? FileImage(ProfilePicture.image!)

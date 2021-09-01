@@ -46,6 +46,12 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => Alamat()),
       ],
       child: MaterialApp(
+        // localizationsDelegates: [
+        //   DefaultMaterialLocalizations.delegate,
+        // ],
+        // supportedLocales: [
+        //   const Locale('id', ''),
+        // ],
         title: 'Attendance App',
         debugShowCheckedModeBanner: false,
         color: '3546AB'.toColor(),

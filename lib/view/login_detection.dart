@@ -3,10 +3,11 @@ import 'dart:math' as math;
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
+import 'package:presensi_app/provider/karyawan.dart';
 import 'package:presensi_app/service/camera_service.dart';
 import 'package:presensi_app/service/face_recognition_service.dart';
 import 'package:presensi_app/service/ml_kit_service.dart';
-import 'package:presensi_app/widgets/auth_action_button.dart';
+import 'package:presensi_app/widgets/error_bottom_sheet.dart';
 import 'package:presensi_app/widgets/face_painter.dart';
 import 'package:presensi_app/widgets/navigation_bar.dart';
 import 'package:supercharged/supercharged.dart';
@@ -41,12 +42,16 @@ class _LoginDetectionState extends State<LoginDetection> {
   bool _saving = false;
   bool _buttonClicked = false;
 
-  Map<String, dynamic>? predictedKaryawan;
+  Map<String, dynamic> _predictedKaryawan = {};
+  Map<String, dynamic> get predictedKaryawan => _predictedKaryawan;
 
   //service injection
+  Karyawan _karyawan = Karyawan();
   MLKitService _mlKitService = MLKitService();
   CameraService _cameraService = CameraService();
   FaceRecognitionService _faceRecognitionService = FaceRecognitionService();
+
+  ErrorBottomSheet _errorBottomSheet = ErrorBottomSheet();
 
   @override
   void initState() {
@@ -65,15 +70,32 @@ class _LoginDetectionState extends State<LoginDetection> {
 
   ///mulai kamera dan mulai framing wajah
   _start() async {
-    _initializeControllerFuture =
-        _cameraService.startService(widget.cameraDescription);
-    await _initializeControllerFuture;
+    try {
+      _initializeControllerFuture =
+          _cameraService.startService(widget.cameraDescription);
+      await _initializeControllerFuture;
 
-    setState(() {
-      cameraInitialized = true;
-    });
+      setState(() {
+        cameraInitialized = true;
+      });
 
-    _frameFaces();
+      _frameFaces();
+
+      await _karyawan.getKaryawan();
+    } catch (e) {
+      _retryError();
+      throw e;
+    }
+  }
+
+  _retryError() async {
+    try {
+      await _karyawan.getKaryawan();
+    } catch (e) {
+      _errorBottomSheet.errorBottomSheet(context, _retryError);
+
+      throw e;
+    }
   }
 
   ///ngehandle ketika tombol capture ditekan
@@ -270,13 +292,14 @@ class _LoginDetectionState extends State<LoginDetection> {
                       try {
                         await _initializeControllerFuture;
                         bool isFaceDetected = await onShoot();
+
                         if (isFaceDetected) {
                           setState(() {
                             _buttonClicked = !_buttonClicked;
                           });
                           dynamic karyawan = _predictKaryawan();
                           if (karyawan != null) {
-                            predictedKaryawan = karyawan;
+                            _predictedKaryawan = karyawan;
                             print(predictedKaryawan);
                           } else {
                             print("tidak ada prediksi wajah");
@@ -301,7 +324,7 @@ class _LoginDetectionState extends State<LoginDetection> {
                         context,
                         MaterialPageRoute(
                           builder: (BuildContext context) =>
-                              NavigationBar(predictedKaryawan!),
+                              NavigationBar(predictedKaryawan),
                         ),
                       );
                     }
