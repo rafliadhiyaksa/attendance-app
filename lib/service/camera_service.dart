@@ -4,10 +4,10 @@ import 'package:camera/camera.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
 
 class CameraService {
-  static final CameraService _cameraServiceService = CameraService._internal();
+  static final CameraService _cameraService = CameraService._internal();
 
   factory CameraService() {
-    return _cameraServiceService;
+    return _cameraService;
   }
 
   CameraService._internal();

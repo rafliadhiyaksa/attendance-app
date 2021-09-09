@@ -10,8 +10,9 @@ import 'package:presensi_app/view/history_page.dart';
 import 'package:presensi_app/view/home_page.dart';
 
 class NavigationBar extends StatefulWidget {
-  NavigationBar(this.predictedKaryawan, {Key? key}) : super(key: key);
   final Map<String, dynamic> predictedKaryawan;
+
+  NavigationBar(this.predictedKaryawan, {Key? key}) : super(key: key);
 
   @override
   _NavigationBarState createState() => _NavigationBarState();
@@ -56,10 +57,11 @@ class _NavigationBarState extends State<NavigationBar> {
 
   @override
   Widget build(BuildContext context) {
+    print(widget.predictedKaryawan);
     double statusBar = MediaQuery.of(context).padding.top;
     final List _screens = [
       HomePage(widget.predictedKaryawan),
-      HistoryPage(key: PageStorageKey('key-history')),
+      HistoryPage(),
     ];
     return Scaffold(
       extendBody: true,

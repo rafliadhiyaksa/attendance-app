@@ -45,7 +45,8 @@ class Karyawan with ChangeNotifier {
 
   ///Post Data Karyawan
   Future<void> postData({
-    required String nama,
+    required String namaDepan,
+    required String namaBelakang,
     required String email,
     required String tempatLahir,
     required dynamic tanggalLahir,
@@ -60,25 +61,26 @@ class Karyawan with ChangeNotifier {
     required List facePict,
   }) async {
     var request = http.MultipartRequest('POST', Uri.parse(BaseUrl.karyawanAPI));
-    request.fields['nama'] = nama;
-    request.fields['email'] = email;
-    request.fields['tempat_lahir'] = tempatLahir;
-    request.fields['tanggal_lahir'] = tanggalLahir;
-    request.fields['id_gender'] = idGender;
-    request.fields['no_hp'] = noHp;
-    request.fields['id_jabatan'] = idJabatan.toString();
-    request.fields['alamat'] = alamat;
-    request.fields['provinsi'] = provinsi;
-    request.fields['kota_kabupaten'] = kota;
-    request.fields['kecamatan'] = kecamatan;
-    request.fields['kelurahan'] = kelurahan;
+    request.fields['NAMA_DEPAN'] = namaDepan;
+    request.fields['NAMA_BELAKANG'] = namaBelakang;
+    request.fields['EMAIL'] = email;
+    request.fields['TEMPAT_LAHIR'] = tempatLahir;
+    request.fields['TGL_LAHIR'] = tanggalLahir;
+    request.fields['ID_GENDER'] = idGender;
+    request.fields['NO_HP'] = noHp;
+    request.fields['ID_JABATAN'] = idJabatan.toString();
+    request.fields['ALAMAT'] = alamat;
+    request.fields['PROVINSI'] = provinsi;
+    request.fields['KOTA_KAB'] = kota;
+    request.fields['KECAMATAN'] = kecamatan;
+    request.fields['KELURAHAN'] = kelurahan;
 
     var profilPict = await http.MultipartFile.fromPath(
-        'profil_pict', ProfilePicture.image!.path);
+        'PROFIL_IMG', ProfilePicture.image!.path);
     request.files.add(profilPict);
 
     var facePictAsJson = json.encode(facePict);
-    request.fields['face_pict'] = facePictAsJson;
+    request.fields['DATA_WAJAH'] = facePictAsJson;
 
     EasyLoading.show(
       status: 'Loading...',
@@ -110,10 +112,7 @@ class Karyawan with ChangeNotifier {
     String id,
     String nama,
     String email,
-    String tempatLahir,
-    dynamic tanggalLahir,
     String noHp,
-    String jenisKelamin,
     String jabatan,
     String alamat,
     String provinsi,
@@ -123,21 +122,18 @@ class Karyawan with ChangeNotifier {
   ) async {
     var request =
         http.MultipartRequest('POST', Uri.parse(BaseUrl.karyawanAPI + id));
-    request.fields['nama'] = nama;
-    request.fields['email'] = email;
-    request.fields['tempat_lahir'] = tempatLahir;
-    request.fields['tanggal_lahir'] = tanggalLahir;
-    request.fields['no_hp'] = noHp;
-    request.fields['jenis_kelamin'] = jenisKelamin;
-    request.fields['jabatan'] = jabatan;
-    request.fields['alamat'] = alamat;
-    request.fields['provinsi'] = provinsi;
-    request.fields['kota_kabupaten'] = kota;
-    request.fields['kecamatan'] = kecamatan;
-    request.fields['kelurahan'] = kelurahan;
+    request.fields['NAMA'] = nama;
+    request.fields['EMAIL'] = email;
+    request.fields['NO_HP'] = noHp;
+    request.fields['ID_JABATAN'] = jabatan;
+    request.fields['ALAMAT'] = alamat;
+    request.fields['PROVINSI'] = provinsi;
+    request.fields['KOTA_KAB'] = kota;
+    request.fields['KECAMATAN'] = kecamatan;
+    request.fields['KELURAHAN'] = kelurahan;
 
     var profilPict = await http.MultipartFile.fromPath(
-        'profil_pict', ProfilePicture.image!.path);
+        'PROFIL_IMG', ProfilePicture.image!.path);
     request.files.add(profilPict);
 
     EasyLoading.show(

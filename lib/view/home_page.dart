@@ -70,8 +70,8 @@ class HomePage extends StatelessWidget {
                           width: (width - 20) * 0.38,
                           height: (height * 0.2) - 20,
                           child: Image.network(
-                            'https://ae6d-36-72-243-74.ngrok.io/presensi_app/upload/profil/' +
-                                predictedKaryawan['profil_pict'],
+                            'https://87db-103-132-53-169.ngrok.io/presensi_app/upload/profil/' +
+                                predictedKaryawan['PROFIL_IMG'],
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -84,11 +84,11 @@ class HomePage extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               buildText(
-                                predictedKaryawan['nama'],
+                                predictedKaryawan['NAMA'],
                                 20,
                                 Colors.white,
                               ),
-                              buildText(predictedKaryawan['id_jabatan'], 15,
+                              buildText(predictedKaryawan['ID_JABATAN'], 15,
                                   Colors.white),
                               Spacer(),
                               Container(
@@ -224,7 +224,10 @@ class HomePage extends StatelessWidget {
                     headerStyle: HeaderStyle(
                       titleCentered: true,
                       titleTextStyle: TextStyle(fontSize: 15),
+                      headerPadding: EdgeInsets.only(top: 20, bottom: 20),
                       formatButtonVisible: false,
+                      leftChevronVisible: false,
+                      rightChevronVisible: false,
                     ),
                     locale: 'id_ID',
                     daysOfWeekStyle: DaysOfWeekStyle(

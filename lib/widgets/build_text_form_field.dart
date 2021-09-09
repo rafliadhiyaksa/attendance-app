@@ -55,7 +55,7 @@ class BuildTextFormField extends StatelessWidget {
           obscureText: this.isPassword,
           cursorColor: this.primary,
           keyboardType: this.type,
-          textInputAction: TextInputAction.next,
+          textInputAction: TextInputAction.done,
           minLines: minlines,
           style:
               TextStyle(fontFamily: "ProductSans", fontWeight: FontWeight.w700),

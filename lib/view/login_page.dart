@@ -4,12 +4,9 @@ import 'package:supercharged/supercharged.dart';
 
 import 'package:presensi_app/service/face_recognition_service.dart';
 import 'package:presensi_app/service/ml_kit_service.dart';
-import 'package:presensi_app/view/login_detection.dart';
+import 'package:presensi_app/view/face_login.dart';
 
 class Login extends StatefulWidget {
-  static CameraDescription? _cameraDescription;
-  static CameraDescription? get cameraDescription => _cameraDescription;
-
   @override
   _LoginState createState() => _LoginState();
 }
@@ -18,6 +15,9 @@ class _LoginState extends State<Login> {
   //Service Injection
   FaceRecognitionService _faceRecognitionService = FaceRecognitionService();
   MLKitService _mlKitService = MLKitService();
+
+  CameraDescription? _cameraDescription;
+  CameraDescription? get cameraDescription => _cameraDescription;
 
   bool loading = false;
   Color primary = '3546AB'.toColor();
@@ -35,7 +35,7 @@ class _LoginState extends State<Login> {
     List<CameraDescription> cameras = await availableCameras();
 
     // menggunakan kamera depan
-    Login._cameraDescription = cameras.firstWhere((CameraDescription camera) =>
+    _cameraDescription = cameras.firstWhere((CameraDescription camera) =>
         camera.lensDirection == CameraLensDirection.front);
 
     //mulai service
@@ -123,9 +123,9 @@ class _LoginState extends State<Login> {
                                     Navigator.of(context).push(
                                       MaterialPageRoute(
                                         builder: (BuildContext context) =>
-                                            LoginDetection(
+                                            FaceLogin(
                                                 cameraDescription:
-                                                    Login.cameraDescription!),
+                                                    cameraDescription!),
                                       ),
                                     );
                                   },
@@ -162,8 +162,9 @@ class _LoginState extends State<Login> {
                                       "Tidak Punya Akun? ", 15.0, Colors.black),
                                   InkWell(
                                       onTap: () {
-                                        Navigator.of(context)
-                                            .pushNamed('registration');
+                                        Navigator.of(context).pushNamed(
+                                            'registration',
+                                            arguments: cameraDescription);
                                       },
                                       child: buildText("Daftar Sekarang", 15.0,
                                           "#3546AB".toColor())),

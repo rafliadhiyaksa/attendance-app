@@ -149,8 +149,8 @@ class FaceRecognitionService {
 
     data.forEach(
       (element) {
-        currDist =
-            _euclideanDistance(jsonDecode(element['face_pict']), predictedData);
+        currDist = _euclideanDistance(
+            jsonDecode(element['DATA_WAJAH']), predictedData);
         if (currDist <= threshold && currDist < minDist) {
           minDist = currDist;
           predRes = element;

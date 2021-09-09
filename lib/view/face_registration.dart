@@ -12,7 +12,7 @@ import 'package:supercharged/supercharged.dart';
 class FaceRegistration extends StatefulWidget {
   final CameraDescription cameraDescription;
 
-  FaceRegistration({required this.cameraDescription});
+  FaceRegistration(this.cameraDescription);
 
   @override
   _FaceRegistrationState createState() => _FaceRegistrationState();

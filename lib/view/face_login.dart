@@ -10,22 +10,24 @@ import 'package:presensi_app/service/ml_kit_service.dart';
 import 'package:presensi_app/widgets/error_bottom_sheet.dart';
 import 'package:presensi_app/widgets/face_painter.dart';
 import 'package:presensi_app/widgets/navigation_bar.dart';
+import 'package:provider/provider.dart';
 import 'package:supercharged/supercharged.dart';
 
-class LoginDetection extends StatefulWidget {
+class FaceLogin extends StatefulWidget {
   final CameraDescription cameraDescription;
 
-  const LoginDetection({
+  const FaceLogin({
     Key? key,
     required this.cameraDescription,
   }) : super(key: key);
 
   @override
-  _LoginDetectionState createState() => _LoginDetectionState();
+  _FaceLoginState createState() => _FaceLoginState();
 }
 
-class _LoginDetectionState extends State<LoginDetection> {
+class _FaceLoginState extends State<FaceLogin> {
   final Color primary = '3546AB'.toColor();
+  bool isInit = true;
 
   String? imagePath;
   Face? faceDetected;
@@ -35,6 +37,7 @@ class _LoginDetectionState extends State<LoginDetection> {
 
   bool _detectingFaces = false;
   bool pictureTaked = false;
+  bool facePredicted = false;
 
   late Future _initializeControllerFuture;
   bool cameraInitialized = false;
@@ -46,7 +49,6 @@ class _LoginDetectionState extends State<LoginDetection> {
   Map<String, dynamic> get predictedKaryawan => _predictedKaryawan;
 
   //service injection
-  Karyawan _karyawan = Karyawan();
   MLKitService _mlKitService = MLKitService();
   CameraService _cameraService = CameraService();
   FaceRecognitionService _faceRecognitionService = FaceRecognitionService();
@@ -62,6 +64,19 @@ class _LoginDetectionState extends State<LoginDetection> {
   }
 
   @override
+  void didChangeDependencies() async {
+    try {
+      if (isInit) {
+        await Provider.of<Karyawan>(context, listen: false).getKaryawan();
+      }
+      isInit = false;
+    } catch (e) {
+      _retryError();
+    }
+    super.didChangeDependencies();
+  }
+
+  @override
   void dispose() {
     this._faceRecognitionService.setPredictedData(null);
     _cameraService.dispose();
@@ -70,30 +85,20 @@ class _LoginDetectionState extends State<LoginDetection> {
 
   ///mulai kamera dan mulai framing wajah
   _start() async {
-    try {
-      _initializeControllerFuture =
-          _cameraService.startService(widget.cameraDescription);
-      await _initializeControllerFuture;
-
-      setState(() {
-        cameraInitialized = true;
-      });
-
-      _frameFaces();
-
-      await _karyawan.getKaryawan();
-    } catch (e) {
-      _retryError();
-      throw e;
-    }
+    _initializeControllerFuture =
+        _cameraService.startService(widget.cameraDescription);
+    await _initializeControllerFuture;
+    setState(() {
+      cameraInitialized = true;
+    });
+    _frameFaces();
   }
 
   _retryError() async {
     try {
-      await _karyawan.getKaryawan();
+      await Provider.of<Karyawan>(context, listen: false).getKaryawan();
     } catch (e) {
       _errorBottomSheet.errorBottomSheet(context, _retryError);
-
       throw e;
     }
   }
@@ -115,7 +120,7 @@ class _LoginDetectionState extends State<LoginDetection> {
       await _cameraService.cameraController!.stopImageStream();
       await Future.delayed(Duration(milliseconds: 200));
       XFile file = await _cameraService.takePicture();
-      imagePath = file.path;
+      // imagePath = file.path;
 
       setState(() {
         pictureTaked = true;
@@ -142,6 +147,7 @@ class _LoginDetectionState extends State<LoginDetection> {
             setState(() {
               faceDetected = faces[0];
             });
+
             if (_saving) {
               _faceRecognitionService.setCurrentPrediction(
                   image, faceDetected!);

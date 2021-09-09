@@ -45,7 +45,6 @@ class _PresensiPageState extends State<PresensiPage> {
 
   Map<String, dynamic> _predictedKaryawan = {};
   Map<String, dynamic> get predictedKaryawan => _predictedKaryawan;
-
   //service injection
   MLKitService _mlKitService = MLKitService();
   CameraService _cameraService = CameraService();
@@ -125,6 +124,7 @@ class _PresensiPageState extends State<PresensiPage> {
             setState(() {
               faceDetected = faces[0];
             });
+
             if (_saving) {
               _faceRecognitionService.setCurrentPrediction(
                   image, faceDetected!);
@@ -252,7 +252,7 @@ class _PresensiPageState extends State<PresensiPage> {
           /// waktu presensi
           TimerBuilder.periodic(Duration(seconds: 1), builder: (context) {
             final now = DateTime.now();
-            final String getSystemTime = DateFormat("HH:mm:ss").format(now);
+            final String getSystemTime = DateFormat("hh:mm:ss").format(now);
             return buildText(getSystemTime, 35, Colors.green);
           }),
 
@@ -299,8 +299,6 @@ class _PresensiPageState extends State<PresensiPage> {
                           });
                           dynamic karyawan = _predictKaryawan();
                           if (karyawan != null) {
-                            _predictedKaryawan = karyawan;
-                            print(predictedKaryawan);
                           } else {
                             print("tidak ada prediksi wajah");
                             setState(() {
