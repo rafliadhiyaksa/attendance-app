@@ -1,18 +1,18 @@
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:presensi_app/models/model_karyawan.dart';
 import 'package:presensi_app/view/presensi_page.dart';
 import 'package:supercharged/supercharged.dart';
-
 import 'package:presensi_app/service/face_recognition_service.dart';
 import 'package:presensi_app/service/ml_kit_service.dart';
 import 'package:presensi_app/view/history_page.dart';
 import 'package:presensi_app/view/home_page.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 class NavigationBar extends StatefulWidget {
-  final Map<String, dynamic> predictedKaryawan;
-
-  NavigationBar(this.predictedKaryawan, {Key? key}) : super(key: key);
+  NavigationBar({Key? key}) : super(key: key);
 
   @override
   _NavigationBarState createState() => _NavigationBarState();
@@ -32,8 +32,8 @@ class _NavigationBarState extends State<NavigationBar> {
   int _currentIndex = 0;
 
   final iconList = <IconData>[
-    Icons.home_rounded,
-    Icons.history_rounded,
+    FontAwesomeIcons.home,
+    FontAwesomeIcons.history,
   ];
 
   final PageStorageBucket bucket = PageStorageBucket();
@@ -57,15 +57,19 @@ class _NavigationBarState extends State<NavigationBar> {
 
   @override
   Widget build(BuildContext context) {
-    print(widget.predictedKaryawan);
+    // print(widget.predictedKaryawan);
+    initializeDateFormatting();
+
+    final predictedUser =
+        ModalRoute.of(context)!.settings.arguments as ModelKaryawan;
     double statusBar = MediaQuery.of(context).padding.top;
     final List _screens = [
-      HomePage(widget.predictedKaryawan),
-      HistoryPage(),
+      HomePage(predictedUser),
+      HistoryPage(predictedUser.idKaryawan!),
     ];
     return Scaffold(
       extendBody: true,
-      backgroundColor: primary,
+      // backgroundColor: primary,
       body: Padding(
         padding: EdgeInsets.only(top: statusBar),
         child: PageStorage(
@@ -73,21 +77,29 @@ class _NavigationBarState extends State<NavigationBar> {
           child: _screens[_currentIndex],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: primary,
-        isExtended: true,
-        child: Image(
-          image: AssetImage('assets/icon/face-id.png'),
-          width: 25,
-        ),
-        onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (BuildContext context) =>
-                  PresensiPage(cameraDescription: cameraDescription!),
+      floatingActionButton: Container(
+        height: 70,
+        width: 70,
+        child: FittedBox(
+          child: FloatingActionButton(
+            backgroundColor: primary,
+            isExtended: true,
+            child: Image(
+              image: AssetImage('assets/icon/face-id.png'),
+              width: 20,
             ),
-          );
-        },
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (BuildContext context) => PresensiPage(
+                    cameraDescription: cameraDescription!,
+                    predictedUser: predictedUser,
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: AnimatedBottomNavigationBar.builder(
@@ -102,7 +114,7 @@ class _NavigationBarState extends State<NavigationBar> {
             children: [
               Icon(
                 iconList[index],
-                size: 40,
+                size: 30,
                 color: color,
               ),
             ],

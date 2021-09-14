@@ -1,8 +1,14 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dropdown_alert/alert_controller.dart';
+import 'package:flutter_dropdown_alert/model/data_alert.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
+import 'package:presensi_app/provider/presensi.dart';
+import 'package:provider/provider.dart';
 import 'package:supercharged/supercharged.dart';
 import 'package:timer_builder/timer_builder.dart';
 import 'package:intl/intl.dart';
@@ -11,14 +17,15 @@ import 'package:presensi_app/service/camera_service.dart';
 import 'package:presensi_app/service/face_recognition_service.dart';
 import 'package:presensi_app/service/ml_kit_service.dart';
 import 'package:presensi_app/widgets/face_painter.dart';
-import 'package:presensi_app/widgets/navigation_bar.dart';
 
 class PresensiPage extends StatefulWidget {
   final CameraDescription cameraDescription;
+  final predictedUser;
 
   const PresensiPage({
     Key? key,
     required this.cameraDescription,
+    required this.predictedUser,
   }) : super(key: key);
 
   @override
@@ -27,6 +34,7 @@ class PresensiPage extends StatefulWidget {
 
 class _PresensiPageState extends State<PresensiPage> {
   final Color primary = '3546AB'.toColor();
+  bool isInit = true;
 
   String? imagePath;
   Face? faceDetected;
@@ -59,8 +67,23 @@ class _PresensiPageState extends State<PresensiPage> {
   }
 
   @override
+  void didChangeDependencies() async {
+    try {
+      if (isInit) {
+        await Provider.of<Presensi>(context, listen: false).getSetting();
+        await Provider.of<Presensi>(context, listen: false)
+            .getPresensi(widget.predictedUser.idKaryawan);
+      }
+      isInit = false;
+    } catch (e) {
+      throw e;
+    }
+    super.didChangeDependencies();
+  }
+
+  @override
   void dispose() {
-    this._faceRecognitionService.setPredictedData(null);
+    this._faceRecognitionService.setCurrFaceData(null);
     _cameraService.dispose();
     super.dispose();
   }
@@ -146,7 +169,7 @@ class _PresensiPageState extends State<PresensiPage> {
     });
   }
 
-  dynamic _predictKaryawan() {
+  dynamic _predictUser() {
     dynamic karyawan = _faceRecognitionService.predict();
     return karyawan ?? null;
   }
@@ -160,19 +183,29 @@ class _PresensiPageState extends State<PresensiPage> {
     // this._start();
   }
 
+  void _warning(String title, String message) {
+    AlertController.show(
+      title,
+      message,
+      TypeAlert.warning,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final presensiProvider = Provider.of<Presensi>(context, listen: false);
     final double mirror = math.pi;
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
+
     return Scaffold(
       appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
-            icon: Icon(Icons.arrow_back_rounded),
+            icon: FaIcon(FontAwesomeIcons.arrowLeft),
             color: Colors.black,
-            iconSize: 35,
+            iconSize: 25,
             onPressed: () {
               Navigator.pop(context);
             },
@@ -195,7 +228,7 @@ class _PresensiPageState extends State<PresensiPage> {
                   ),
                 ]),
                 width: width * 0.90,
-                height: height * 0.60,
+                height: height * 0.55,
                 child: FutureBuilder<void>(
                   future: _initializeControllerFuture,
                   builder: (context, snapshot) {
@@ -252,7 +285,7 @@ class _PresensiPageState extends State<PresensiPage> {
           /// waktu presensi
           TimerBuilder.periodic(Duration(seconds: 1), builder: (context) {
             final now = DateTime.now();
-            final String getSystemTime = DateFormat("hh:mm:ss").format(now);
+            final String getSystemTime = DateFormat("HH:mm:ss").format(now);
             return buildText(getSystemTime, 35, Colors.green);
           }),
 
@@ -265,8 +298,8 @@ class _PresensiPageState extends State<PresensiPage> {
                 ///tombol informasi
                 IconButton(
                   onPressed: () {},
-                  icon: Icon(
-                    Icons.info_outline_rounded,
+                  icon: FaIcon(
+                    FontAwesomeIcons.infoCircle,
                     size: 30,
                   ),
                 ),
@@ -283,9 +316,9 @@ class _PresensiPageState extends State<PresensiPage> {
                     child: !_buttonClicked
                         ? Image(
                             image: AssetImage('assets/icon/face-id.png'),
-                            width: 25,
+                            width: 30,
                           )
-                        : Icon(Icons.done_rounded,
+                        : FaIcon(FontAwesomeIcons.check,
                             size: 25, color: Colors.white),
                   ),
                   onPressed: () async {
@@ -297,10 +330,59 @@ class _PresensiPageState extends State<PresensiPage> {
                           setState(() {
                             _buttonClicked = !_buttonClicked;
                           });
-                          dynamic karyawan = _predictKaryawan();
-                          if (karyawan != null) {
+                          dynamic user = _predictUser();
+                          print(user['status']);
+                          if (user != null) {
+                            //presensi
+                            List dataSetting = presensiProvider.dataSetting;
+                            List dataPresensi = presensiProvider.dataPresensi;
+
+                            DateTime now = DateTime.now();
+                            DateFormat dateFormat = new DateFormat('HH:mm:ss');
+                            DateTime start =
+                                dateFormat.parse(dataSetting[0].mulaiPresensi);
+                            start = new DateTime(now.year, now.month, now.day,
+                                start.hour, start.minute, start.second);
+                            DateTime end =
+                                dateFormat.parse(dataSetting[0].batasPresensi);
+                            end = new DateTime(now.year, now.month, now.day,
+                                end.hour, end.minute, end.second);
+                            DateTime goHome =
+                                dateFormat.parse(dataSetting[0].presensiPulang);
+                            goHome = new DateTime(now.year, now.month, now.day,
+                                goHome.hour, goHome.minute, goHome.second);
+                            // print(dateFormat.format(open));
+                            if (now.isBetween(start, end)) {
+                              print("presensi masuk");
+                              presensiProvider.presensiMasuk(
+                                idKaryawan: widget.predictedUser.idKaryawan,
+                              );
+                            } else if (now.isAfter(end)) {
+                              var tanggal =
+                                  DateFormat('yyyy-MM-dd').format(now);
+                              var data = dataPresensi.where(
+                                  (element) => element.tanggal == tanggal);
+
+                              if (data.isNotEmpty) {
+                                if (now.isAfter(goHome)) {
+                                  print("presensi pulang");
+                                  int index = dataPresensi.indexWhere(
+                                      (element) => element.tanggal == tanggal);
+                                  presensiProvider.presensiPulang(
+                                      dataPresensi[index].idPresensi);
+                                } else {
+                                  _warning("Warning",
+                                      "Belum Saatnya Presensi Pulang");
+                                }
+                              } else {
+                                _warning("Warning",
+                                    "Anda Belum Melakukan Presensi Masuk");
+                              }
+                            } else if (now.isBefore(start)) {
+                              _warning("Warning", "Belum Saatnya Presensi");
+                            }
                           } else {
-                            print("tidak ada prediksi wajah");
+                            print("Wajah Tidak Sesuai");
                             setState(() {
                               _buttonClicked = !_buttonClicked;
                             });
@@ -318,13 +400,7 @@ class _PresensiPageState extends State<PresensiPage> {
                         print(e);
                       }
                     } else {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (BuildContext context) =>
-                              NavigationBar(predictedKaryawan),
-                        ),
-                      );
+                      Navigator.pop(context);
                     }
                   },
                 ),
@@ -335,9 +411,9 @@ class _PresensiPageState extends State<PresensiPage> {
                     _reload();
                     _start();
                   },
-                  icon: Icon(
-                    Icons.refresh_rounded,
-                    size: 30,
+                  icon: FaIcon(
+                    FontAwesomeIcons.syncAlt,
+                    size: 25,
                   ),
                 ),
               ],

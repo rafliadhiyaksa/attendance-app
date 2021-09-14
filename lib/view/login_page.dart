@@ -129,12 +129,12 @@ class _LoginState extends State<Login> {
                                       ),
                                     );
                                   },
-                                  style: ButtonStyle(
-                                    shape: MaterialStateProperty.all(
-                                      RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(20),
-                                      ),
-                                    ),
+                                  style: ElevatedButton.styleFrom(
+                                    primary: primary,
+                                    enableFeedback: true,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(20)),
                                   ),
                                   child: Row(
                                     mainAxisAlignment:

@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 
@@ -21,13 +20,15 @@ class FaceRecognitionService {
 
   double threshold = 1.0;
 
+  /// data wajah sekarang
+  List? _currFaceData;
+  List? get currFaceData => this._currFaceData;
+
+  ///data wajah dari karyawan yang sudah terprediksi / wajah karyawan yang sudah login
   List? _predictedData;
   List? get predictedData => this._predictedData;
 
   Karyawan _karyawan = Karyawan();
-
-  //data user yang tersimpan
-  dynamic data = [];
 
   Future loadModel() async {
     try {
@@ -64,11 +65,11 @@ class FaceRecognitionService {
     this._interpreter!.run(input, output);
     output = output.reshape([192]);
 
-    this._predictedData = List.from(output);
+    this._currFaceData = List.from(output);
   }
 
   dynamic predict() {
-    return _searchResult(this._predictedData!);
+    return _searchResult(this._currFaceData!);
   }
 
   ///preprocess : crop image agar lebih mudah untuk dideteksi
@@ -139,25 +140,46 @@ class FaceRecognitionService {
     return convertedBytes.buffer.asFloat32List();
   }
 
-  dynamic _searchResult(List predictedData) {
-    List<dynamic> data = _karyawan.dataKaryawan;
+  dynamic _searchResult(List currFaceData) {
+    print("predictedData = $predictedData");
+    if (this._predictedData == null) {
+      List data = _karyawan.dataKaryawan;
 
-    if (data.length == 0) return null;
-    double minDist = 999;
-    double currDist = 0.0;
-    dynamic predRes;
+      if (_karyawan.jumlahKaryawan == 0) return null;
+      double minDist = 999;
+      double currDist = 0.0;
+      dynamic predRes;
+      // print("jalankan login");
 
-    data.forEach(
-      (element) {
-        currDist = _euclideanDistance(
-            jsonDecode(element['DATA_WAJAH']), predictedData);
-        if (currDist <= threshold && currDist < minDist) {
-          minDist = currDist;
-          predRes = element;
-        }
-      },
-    );
-    return predRes;
+      data.forEach(
+        (element) {
+          // var dataWajah = element;
+          currDist = _euclideanDistance(element.dataWajah, currFaceData);
+          if (currDist <= threshold && currDist < minDist) {
+            minDist = currDist;
+            predRes = element;
+          }
+        },
+      );
+      return predRes;
+    } else {
+      print("jalankan presensi");
+      if (predictedData!.length == 0) return null;
+      double minDist = 999;
+      double currDist = 0.0;
+      dynamic predRes;
+
+      currDist = _euclideanDistance(predictedData, currFaceData);
+      if (currDist <= threshold && currDist < minDist) {
+        minDist = currDist;
+        predRes = {
+          'status': 1,
+          'message': 'Wajah Sesuai',
+          'predictedData': predictedData,
+        };
+      }
+      return predRes;
+    }
   }
 
   double _euclideanDistance(List? e1, List? e2) {
@@ -168,6 +190,10 @@ class FaceRecognitionService {
       sum += pow((e1[i] - e2[i]), 2);
     }
     return sqrt(sum);
+  }
+
+  void setCurrFaceData(value) {
+    this._currFaceData = value;
   }
 
   void setPredictedData(value) {

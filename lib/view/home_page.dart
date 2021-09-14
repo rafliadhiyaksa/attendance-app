@@ -1,265 +1,220 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:supercharged/supercharged.dart';
-import 'package:table_calendar/table_calendar.dart';
-import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import 'package:presensi_app/view/history_page.dart';
 import 'package:presensi_app/view/profile_page.dart';
+import 'package:presensi_app/models/model_karyawan.dart';
+import 'package:presensi_app/provider/presensi.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   HomePage(this.predictedKaryawan, {Key? key}) : super(key: key);
-  final Map<String, dynamic> predictedKaryawan;
+  final ModelKaryawan predictedKaryawan;
 
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
   final Color primary = '3546AB'.toColor();
   final Color green = '3AA969'.toColor();
+  final Color red = 'F6404F'.toColor();
+  bool isInit = true;
+
+  @override
+  void didChangeDependencies() {
+    if (isInit) {
+      Provider.of<Presensi>(context)
+          .getPresensi(widget.predictedKaryawan.idKaryawan!);
+    }
+    isInit = false;
+    super.didChangeDependencies();
+  }
 
   @override
   Widget build(BuildContext context) {
-    initializeDateFormatting();
+    final providerPresensi = Provider.of<Presensi>(context, listen: false);
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
-    double statusBar = MediaQuery.of(context).padding.top;
+    double appBar = AppBar().preferredSize.height;
+
+    // double statusBar = MediaQuery.of(context).padding.top;
+
+    List dataPresensi = providerPresensi.dataPresensi;
+    String now = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
+    var data = dataPresensi.where((element) => element.tanggal == now);
+
+    if (data.isEmpty) {
+      print("data ksong");
+    } else {
+      print("data ada");
+      print(data);
+    }
 
     return SingleChildScrollView(
-      child: Column(
-        children: [
-          Container(
-            height: (height - statusBar) * 0.1,
-            padding: EdgeInsets.all(20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                buildText("Home", 25, Colors.white),
-                IconButton(
-                  onPressed: () {},
-                  icon: Icon(
-                    Icons.settings_rounded,
-                    color: Colors.white,
-                    size: 30,
-                  ),
-                )
-              ],
-            ),
-          ),
-          Container(
-            decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(35),
-                    topRight: Radius.circular(35))),
-            width: double.infinity,
-            padding:
-                const EdgeInsets.only(top: 30, right: 20, left: 20, bottom: 30),
-            child: Column(
-              children: [
-                ///card karyawan
-                Container(
-                  padding: EdgeInsets.all(10),
-                  height: height * 0.2,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    color: primary,
-                  ),
-                  child: Row(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(15),
-                        child: Container(
-                          color: Colors.white,
-                          width: (width - 20) * 0.38,
-                          height: (height * 0.2) - 20,
-                          child: Image.network(
-                            'https://87db-103-132-53-169.ngrok.io/presensi_app/upload/profil/' +
-                                predictedKaryawan['PROFIL_IMG'],
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 10),
-                      Expanded(
-                        child: Container(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              buildText(
-                                predictedKaryawan['NAMA'],
-                                20,
-                                Colors.white,
-                              ),
-                              buildText(predictedKaryawan['ID_JABATAN'], 15,
-                                  Colors.white),
-                              Spacer(),
-                              Container(
-                                width: (width - 20) * 0.45,
-                                child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      primary: primary,
-                                      shape: RoundedRectangleBorder(
-                                        side: BorderSide(
-                                            color: Colors.white, width: 2.0),
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                    ),
-                                    onPressed: () {
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => ProfilePage(),
-                                          ));
-                                    },
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Icon(
-                                          Icons.visibility_rounded,
-                                          size: 20,
-                                        ),
-                                        SizedBox(
-                                          width: 8,
-                                        ),
-                                        buildText("Detail", 15, Colors.white)
-                                      ],
-                                    )),
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
+      child: Container(
+        width: width,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: appBar),
+            buildText("Home", 35, Colors.black),
+            SizedBox(height: 20),
+
+            ///card karyawan
+            Container(
+              padding: EdgeInsets.all(10),
+              height: height * 0.2,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  gradient: RadialGradient(
+                    colors: [
+                      '#0575E6'.toColor(),
+                      primary,
                     ],
-                  ),
-                ),
+                    center: Alignment(-1.0, -1.0),
+                    focal: Alignment(0.3, -0.1),
 
-                SizedBox(
-                  height: 20,
-                ),
-
-                ///presensi hari ini
-                Container(
-                  alignment: Alignment.centerLeft,
-                  child: buildText("Presensi Hari Ini", 20, Colors.black),
-                ),
-                SizedBox(
-                  height: 8,
-                ),
-                Container(
-                  padding: EdgeInsets.all(10),
-                  height: height * 0.1,
-                  decoration: BoxDecoration(
+                    focalRadius: 3,
+                    // radius: 2,
+                  )),
+              child: Row(
+                children: [
+                  ClipRRect(
                     borderRadius: BorderRadius.circular(15),
-                    color: green,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Icon(
-                        Icons.check_circle_rounded,
-                        color: Colors.white,
-                        size: (height * 0.1) - 20,
+                    child: Container(
+                      color: Colors.white,
+                      width: (width - 20) * 0.38,
+                      height: (height * 0.2) - 20,
+                      child: Image.network(
+                        'https://ef00-103-132-53-169.ngrok.io/presensi_app/upload/profil/' +
+                            widget.predictedKaryawan.profilImg!,
+                        fit: BoxFit.cover,
                       ),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: Container(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           buildText(
-                              "Telah Melakukan Presensi", 15, Colors.white),
-                          buildText("08.32 WIB (Tepat Waktu)", 15, Colors.white)
-                        ],
-                      )
-                    ],
-                  ),
-                ),
-
-                SizedBox(
-                  height: 20,
-                ),
-
-                ///kehadiran bulan ini
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      child: buildText("Kehadiran", 20, Colors.black),
-                    ),
-                    Container(
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => HistoryPage(
-                                  key: PageStorageKey('key-history'),
+                            "${widget.predictedKaryawan.namaDepan} ${widget.predictedKaryawan.namaBelakang}",
+                            20,
+                            Colors.white,
+                          ),
+                          Spacer(),
+                          buildText(widget.predictedKaryawan.jabatan!, 15,
+                              Colors.white),
+                          Spacer(),
+                          Container(
+                            width: (width - 20) * 0.45,
+                            child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  primary: Colors.transparent,
+                                  shape: RoundedRectangleBorder(
+                                    side: BorderSide(
+                                        color: Colors.white, width: 2.0),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
                                 ),
-                              ));
-                        },
-                        child: buildText("view all", 15, primary),
+                                onPressed: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => ProfilePage(),
+                                      ));
+                                },
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.visibility_rounded,
+                                      size: 20,
+                                    ),
+                                    SizedBox(
+                                      width: 8,
+                                    ),
+                                    buildText("Detail", 15, Colors.white)
+                                  ],
+                                )),
+                          )
+                        ],
                       ),
                     ),
-                  ],
-                ),
-                SizedBox(
-                  height: 8,
-                ),
-                Container(
-                  decoration: BoxDecoration(
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.5),
-                        spreadRadius: 2,
-                        blurRadius: 4,
-                        offset: Offset(0, 3),
-                      )
-                    ],
-                    borderRadius: BorderRadius.circular(20),
-                    color: Colors.white,
                   ),
-                  child: TableCalendar(
-                    firstDay:
-                        DateTime(DateTime.now().year, DateTime.now().month, 1),
-                    lastDay: DateTime(DateTime.now().year, DateTime.now().month,
-                        DateTime.now().day),
-                    focusedDay: DateTime.now(),
-                    currentDay: DateTime.now(),
-                    headerStyle: HeaderStyle(
-                      titleCentered: true,
-                      titleTextStyle: TextStyle(fontSize: 15),
-                      headerPadding: EdgeInsets.only(top: 20, bottom: 20),
-                      formatButtonVisible: false,
-                      leftChevronVisible: false,
-                      rightChevronVisible: false,
-                    ),
-                    locale: 'id_ID',
-                    daysOfWeekStyle: DaysOfWeekStyle(
-                      weekdayStyle: TextStyle(fontSize: 12),
-                      weekendStyle: TextStyle(fontSize: 12),
-                    ),
-                    rowHeight: 40,
-                    calendarStyle: CalendarStyle(
-                      disabledTextStyle:
-                          TextStyle(fontSize: 12, color: Colors.grey),
-                      defaultTextStyle: TextStyle(fontSize: 12),
-                      weekendTextStyle:
-                          TextStyle(fontSize: 12, color: Colors.red),
-                      todayTextStyle: TextStyle(fontSize: 12),
-                      outsideTextStyle:
-                          TextStyle(fontSize: 12, color: Colors.grey),
-                      selectedTextStyle: TextStyle(fontSize: 12),
-                      holidayTextStyle: TextStyle(fontSize: 12),
-                      rangeEndTextStyle: TextStyle(fontSize: 12),
-                      rangeStartTextStyle: TextStyle(fontSize: 12),
-                      withinRangeTextStyle: TextStyle(fontSize: 12),
-                      markerMargin: EdgeInsets.all(10),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: 80,
-                )
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+            SizedBox(
+              height: 20,
+            ),
+
+            ///presensi hari ini
+            Container(
+              alignment: Alignment.centerLeft,
+              child: buildText("Presensi Hari Ini", 18, Colors.black),
+            ),
+            SizedBox(
+              height: 8,
+            ),
+            Container(
+              padding: EdgeInsets.all(10),
+              height: height * 0.1,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                color: data.isNotEmpty ? green : red,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  FaIcon(
+                    data.isNotEmpty
+                        ? FontAwesomeIcons.checkCircle
+                        : FontAwesomeIcons.timesCircle,
+                    color: Colors.white,
+                    size: (height * 0.09) - 20,
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      buildText(
+                        data.isNotEmpty
+                            ? "Sudah Melakukan Presensi"
+                            : "Belum Melakukan Presensi",
+                        15,
+                        Colors.white,
+                      ),
+                      () {
+                        if (data.isNotEmpty) {
+                          int index = dataPresensi
+                              .indexWhere((element) => element.tanggal == now);
+
+                          return buildText("${dataPresensi[index].jamMasuk}",
+                              15, Colors.white);
+                        } else {
+                          return buildText("N/A", 15, Colors.white);
+                        }
+                      }(),
+                    ],
+                  )
+                ],
+              ),
+            ),
+
+            SizedBox(
+              height: 20,
+            ),
+
+            ///kehadiran bulan ini
+          ],
+        ),
       ),
     );
   }

@@ -1,15 +1,14 @@
-import 'dart:io';
-import 'dart:math' as math;
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
+import 'package:presensi_app/models/model_karyawan.dart';
 import 'package:presensi_app/provider/karyawan.dart';
 import 'package:presensi_app/service/camera_service.dart';
 import 'package:presensi_app/service/face_recognition_service.dart';
 import 'package:presensi_app/service/ml_kit_service.dart';
 import 'package:presensi_app/widgets/error_bottom_sheet.dart';
 import 'package:presensi_app/widgets/face_painter.dart';
-import 'package:presensi_app/widgets/navigation_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:supercharged/supercharged.dart';
 
@@ -39,14 +38,13 @@ class _FaceLoginState extends State<FaceLogin> {
   bool pictureTaked = false;
   bool facePredicted = false;
 
+  bool isLogin = false;
+
   late Future _initializeControllerFuture;
   bool cameraInitialized = false;
 
-  bool _saving = false;
-  bool _buttonClicked = false;
-
-  Map<String, dynamic> _predictedKaryawan = {};
-  Map<String, dynamic> get predictedKaryawan => _predictedKaryawan;
+  ModelKaryawan _predictedUser = ModelKaryawan();
+  ModelKaryawan get predictedUser => _predictedUser;
 
   //service injection
   MLKitService _mlKitService = MLKitService();
@@ -78,8 +76,11 @@ class _FaceLoginState extends State<FaceLogin> {
 
   @override
   void dispose() {
-    this._faceRecognitionService.setPredictedData(null);
     _cameraService.dispose();
+    // hapus data wajah yang baru saja terdeteksi
+    this._faceRecognitionService.setCurrFaceData(null);
+    // simpan data wajah karyawan yang sudah login sebagai predictedUser
+    this._faceRecognitionService.setPredictedData(predictedUser.dataWajah);
     super.dispose();
   }
 
@@ -103,33 +104,6 @@ class _FaceLoginState extends State<FaceLogin> {
     }
   }
 
-  ///ngehandle ketika tombol capture ditekan
-  Future<bool> onShoot() async {
-    if (faceDetected == null) {
-      showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              content: Text('Tidak ada wajah yang terdeteksi'),
-            );
-          });
-      return false;
-    } else {
-      _saving = true;
-      await Future.delayed(Duration(milliseconds: 500));
-      await _cameraService.cameraController!.stopImageStream();
-      await Future.delayed(Duration(milliseconds: 200));
-      XFile file = await _cameraService.takePicture();
-      // imagePath = file.path;
-
-      setState(() {
-        pictureTaked = true;
-        imagePath = file.path;
-      });
-      return true;
-    }
-  }
-
   ///membuat bounding box ketika mendeteksi wajah
   _frameFaces() {
     _imageSize = _cameraService.getImageSize();
@@ -137,9 +111,7 @@ class _FaceLoginState extends State<FaceLogin> {
     _cameraService.cameraController!.startImageStream((image) async {
       if (_cameraService.cameraController != null) {
         if (_detectingFaces) return;
-
         _detectingFaces = true;
-
         try {
           List<Face> faces = await _mlKitService.getFacesFromImage(image);
 
@@ -147,12 +119,25 @@ class _FaceLoginState extends State<FaceLogin> {
             setState(() {
               faceDetected = faces[0];
             });
-
-            if (_saving) {
+            Future.delayed(Duration(seconds: 1), () {
               _faceRecognitionService.setCurrentPrediction(
                   image, faceDetected!);
+            });
+            dynamic user = _predictUser();
+
+            if (user != null) {
               setState(() {
-                _saving = false;
+                isLogin = true;
+              });
+              _predictedUser = user;
+              await Future.delayed(Duration(milliseconds: 500));
+              await _cameraService.cameraController!.stopImageStream();
+              Navigator.pushReplacementNamed(context, 'navigation-bar',
+                  arguments: predictedUser);
+            } else {
+              print("tidak ada prediksi wajah");
+              setState(() {
+                isLogin = false;
               });
             }
           } else {
@@ -169,23 +154,13 @@ class _FaceLoginState extends State<FaceLogin> {
     });
   }
 
-  dynamic _predictKaryawan() {
-    dynamic karyawan = _faceRecognitionService.predict();
-    return karyawan ?? null;
-  }
-
-  _reload() {
-    setState(() {
-      cameraInitialized = false;
-      pictureTaked = false;
-      _buttonClicked = false;
-    });
-    // this._start();
+  dynamic _predictUser() {
+    dynamic user = _faceRecognitionService.predict();
+    return user ?? null;
   }
 
   @override
   Widget build(BuildContext context) {
-    final double mirror = math.pi;
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
     return Scaffold(
@@ -211,156 +186,60 @@ class _FaceLoginState extends State<FaceLogin> {
               child: Container(
                 width: width * 0.90,
                 height: height * 0.70,
-                child: FutureBuilder<void>(
-                  future: _initializeControllerFuture,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.done) {
-                      if (pictureTaked) {
-                        return Transform(
-                          alignment: Alignment.center,
-                          child: FittedBox(
-                            fit: BoxFit.cover,
-                            child: Image.file(File(imagePath!)),
-                          ),
-                          transform: Matrix4.rotationY(mirror),
-                        );
-                      } else {
-                        return Transform.scale(
-                          scale: 1.0,
-                          child: AspectRatio(
-                            aspectRatio:
-                                MediaQuery.of(context).size.aspectRatio,
-                            child: FittedBox(
-                              fit: BoxFit.cover,
-                              child: Container(
-                                width: width,
-                                height: width *
-                                    _cameraService
-                                        .cameraController!.value.aspectRatio,
-                                child: Stack(
-                                  fit: StackFit.expand,
-                                  children: [
-                                    CameraPreview(
-                                        _cameraService.cameraController!),
-                                    CustomPaint(
-                                      painter: FacePainter(
-                                        face: faceDetected,
-                                        imageSize: imageSize,
-                                      ),
-                                    )
-                                  ],
+                child: isLogin
+                    ? Container(
+                        alignment: Alignment.center,
+                        color: Colors.green,
+                        child: FaIcon(
+                          FontAwesomeIcons.solidCheckCircle,
+                          size: 70,
+                          color: Colors.white,
+                        ),
+                      )
+                    : FutureBuilder<void>(
+                        future: _initializeControllerFuture,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.done) {
+                            return Transform.scale(
+                              scale: 1.0,
+                              child: AspectRatio(
+                                aspectRatio:
+                                    MediaQuery.of(context).size.aspectRatio,
+                                child: FittedBox(
+                                  fit: BoxFit.cover,
+                                  child: Container(
+                                    width: width,
+                                    height: width *
+                                        _cameraService.cameraController!.value
+                                            .aspectRatio,
+                                    child: Stack(
+                                      fit: StackFit.expand,
+                                      children: [
+                                        CameraPreview(
+                                            _cameraService.cameraController!),
+                                        CustomPaint(
+                                          painter: FacePainter(
+                                            face: faceDetected,
+                                            imageSize: imageSize,
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
-                          ),
-                        );
-                      }
-                    } else {
-                      return Center(child: CircularProgressIndicator());
-                    }
-                  },
-                ),
+                            );
+                          } else {
+                            return Center(child: CircularProgressIndicator());
+                          }
+                        },
+                      ),
               ),
             ),
           ),
-          Container(
-            alignment: Alignment.center,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ///tombol informasi
-                IconButton(
-                  onPressed: () {},
-                  icon: Icon(
-                    Icons.info_outline_rounded,
-                    size: 30,
-                  ),
-                ),
-
-                ///tombol capture
-                ElevatedButton(
-                  child: Container(
-                      child: !_buttonClicked
-                          ? Image(
-                              image: AssetImage('assets/icon/face-id.png'),
-                              width: 25,
-                            )
-                          : Icon(Icons.done_rounded,
-                              size: 25, color: Colors.white)),
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.all(20),
-                    primary: !_buttonClicked ? primary : Colors.green,
-                    enableFeedback: true,
-                    shape: CircleBorder(),
-                  ),
-                  onPressed: () async {
-                    if (!_buttonClicked) {
-                      try {
-                        await _initializeControllerFuture;
-                        bool isFaceDetected = await onShoot();
-
-                        if (isFaceDetected) {
-                          setState(() {
-                            _buttonClicked = !_buttonClicked;
-                          });
-                          dynamic karyawan = _predictKaryawan();
-                          if (karyawan != null) {
-                            _predictedKaryawan = karyawan;
-                            print(predictedKaryawan);
-                          } else {
-                            print("tidak ada prediksi wajah");
-                            setState(() {
-                              _buttonClicked = !_buttonClicked;
-                            });
-                            showDialog(
-                              context: context,
-                              builder: (context) {
-                                return AlertDialog(
-                                  content: Text('Wajah Belum Terdaftar'),
-                                );
-                              },
-                            );
-                          }
-                        }
-                      } catch (e) {
-                        print(e);
-                      }
-                    } else {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (BuildContext context) =>
-                              NavigationBar(predictedKaryawan),
-                        ),
-                      );
-                    }
-                  },
-                ),
-
-                ///tombol refresh
-                IconButton(
-                  onPressed: () {
-                    _reload();
-                    _start();
-                  },
-                  icon: Icon(
-                    Icons.refresh_rounded,
-                    size: 30,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          // Container(
-          //   height: height * 0.16,
-          //   alignment: Alignment.center,
-          //   child: AuthActionButton(
-          //     _initializeControllerFuture,
-          //     onPressed: onShoot,
-          //     isLogin: true,
-          //     reload: _reload,
-          //   ),
-          // ),
+          buildText(isLogin ? "Verified" : "Scanning...", 25,
+              isLogin ? Colors.green : Colors.black),
         ],
       ),
     );

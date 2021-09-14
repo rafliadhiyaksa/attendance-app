@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_dropdown_alert/dropdown_alert.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:presensi_app/provider/alamat.dart';
+import 'package:presensi_app/provider/presensi.dart';
+import 'package:presensi_app/widgets/navigation_bar.dart';
 import 'package:supercharged/supercharged.dart';
 import 'package:provider/provider.dart';
 
@@ -44,14 +46,9 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (context) => Karyawan()),
         ChangeNotifierProvider(create: (context) => Alamat()),
+        ChangeNotifierProvider(create: (context) => Presensi()),
       ],
       child: MaterialApp(
-        // localizationsDelegates: [
-        //   DefaultMaterialLocalizations.delegate,
-        // ],
-        // supportedLocales: [
-        //   const Locale('id', ''),
-        // ],
         title: 'Attendance App',
         debugShowCheckedModeBanner: false,
         color: '3546AB'.toColor(),
@@ -88,6 +85,7 @@ class MyApp extends StatelessWidget {
         routes: {
           'login': (context) => Login(),
           'registration': (context) => RegistrationPage(),
+          'navigation-bar': (context) => NavigationBar(),
         },
       ),
     );

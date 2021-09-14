@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dropdown_alert/model/data_alert.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:http/http.dart' as http;
+import 'package:presensi_app/models/model_karyawan.dart';
 import 'package:presensi_app/provider/api.dart';
 import 'package:presensi_app/widgets/build_profile_picture.dart';
 import 'package:flutter_dropdown_alert/alert_controller.dart';
@@ -26,6 +27,8 @@ class Karyawan with ChangeNotifier {
 
   List<dynamic> _dataJabatan = [];
   List<dynamic> get dataJabatan => _dataJabatan;
+
+  int get jumlahKaryawan => _dataKaryawan.length;
 
   void _success(String message) {
     AlertController.show(
@@ -86,24 +89,31 @@ class Karyawan with ChangeNotifier {
       status: 'Loading...',
       maskType: EasyLoadingMaskType.black,
     );
-    var streamedResponse = await request.send();
-    var response = await http.Response.fromStream(streamedResponse);
 
-    if (response.statusCode == 200) {
-      _dataResponse = json.decode(response.body);
-      notifyListeners();
-      EasyLoading.dismiss();
-      if (_dataResponse['value'] == 1) {
-        _success(_dataResponse['message']);
-        print("uploaded");
-      } else if (_dataResponse['value'] == 2) {
-        _failed("Error", _dataResponse['message']);
+    try {
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        _dataResponse = json.decode(response.body);
+        notifyListeners();
+        EasyLoading.dismiss();
+        if (_dataResponse['value'] == 1) {
+          _success(_dataResponse['message']);
+          print("uploaded");
+        } else if (_dataResponse['value'] == 2) {
+          _failed("Error", _dataResponse['message']);
+        }
+      } else {
+        EasyLoading.dismiss();
+        _failed("Error ${response.statusCode}", _dataResponse['message']);
+        throw response.statusCode;
       }
-    } else {
+    } catch (err) {
       EasyLoading.dismiss();
-      _failed(
-          "Error " + response.statusCode.toString(), _dataResponse['message']);
+      throw err;
     }
+
     // EasyLoading.dismiss();
   }
 
@@ -165,23 +175,70 @@ class Karyawan with ChangeNotifier {
   ///Get data karyawan
   Future<void> getKaryawan() async {
     var response = await http.get(Uri.parse(BaseUrl.karyawanAPI));
-
-    _dataKaryawan = json.decode(response.body)['data'];
-    notifyListeners();
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      List dataResponse = json.decode(response.body)['data'];
+      dataResponse.forEach((element) {
+        List dataWajah = jsonDecode(element['DATA_WAJAH']);
+        int idKaryawan = jsonDecode(element['ID_KARYAWAN']);
+        // print("data wajah = $dataWajah");
+        var karyawan = ModelKaryawan(
+          idKaryawan: idKaryawan,
+          namaDepan: element['NAMA_DEPAN'],
+          namaBelakang: element['NAMA_BELAKANG'],
+          email: element['EMAIL'],
+          tempatLahir: element['TEMPAT_LAHIR'],
+          tglLahir: element['TGL_LAHIR'],
+          gender: element['GENDER'],
+          noHp: element['NO_HP'],
+          jabatan: element['JABATAN'],
+          alamat: element['ALAMAT'],
+          provinsi: element['PROVINSI'],
+          kota: element['KOTA_KAB'],
+          kecamatan: element['KECAMATAN'],
+          kelurahan: element['KELURAHAN'],
+          profilImg: element['PROFIL_IMG'],
+          dataWajah: dataWajah,
+        );
+        _dataKaryawan.add(karyawan);
+      });
+      notifyListeners();
+    } else {
+      _failed("Error ${response.statusCode}", "Connection Timeout");
+    }
   }
 
   ///get data gender
   Future<void> getGender() async {
-    var hasilGetData = await http.get(Uri.parse(BaseUrl.genderAPI));
-    _dataGender = json.decode(hasilGetData.body)['data'];
-    notifyListeners();
+    try {
+      var response = await http.get(Uri.parse(BaseUrl.genderAPI));
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        _dataGender = json.decode(response.body)['data'];
+        notifyListeners();
+      } else {
+        _failed("Error ${response.statusCode}", "Not Found");
+      }
+    } catch (err) {
+      _failed("Error", "Connection Timeout");
+      throw err;
+    }
   }
 
   ///get data jabatan
   Future<void> getJabatan() async {
-    var hasilGetData = await http.get(Uri.parse(BaseUrl.jabatanAPI));
-    _dataJabatan = json.decode(hasilGetData.body)['data'];
-    notifyListeners();
+    try {
+      var response = await http.get(Uri.parse(BaseUrl.jabatanAPI));
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        _dataJabatan = json.decode(response.body)['data'];
+        notifyListeners();
+      } else {
+        _failed("Error ${response.statusCode}", "Not Found");
+      }
+    } catch (err) {
+      _failed("Error", "Connection Timeout");
+      throw err;
+    }
   }
 
   ///Delete data karyawan
@@ -197,4 +254,6 @@ class Karyawan with ChangeNotifier {
       },
     );
   }
+
+  void logout() {}
 }

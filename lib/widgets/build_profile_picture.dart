@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supercharged/supercharged.dart';
@@ -38,9 +39,9 @@ class _ProfilePictureState extends State<ProfilePicture> {
                   ? FileImage(ProfilePicture.image!)
                   : null),
               child: (ProfilePicture.image == null
-                  ? Icon(
-                      Icons.person,
-                      size: 40,
+                  ? FaIcon(
+                      FontAwesomeIcons.userAlt,
+                      size: 30,
                     )
                   : null),
             ),
@@ -60,9 +61,10 @@ class _ProfilePictureState extends State<ProfilePicture> {
                 },
                 child: CircleAvatar(
                   radius: 25,
-                  child: Icon(
-                    Icons.camera_alt_rounded,
-                    color: primary,
+                  child: FaIcon(
+                    FontAwesomeIcons.camera,
+                    size: 20,
+                    color: Colors.black,
                   ),
                   backgroundColor: 'E8E8E8'.toColor(),
                 ),
@@ -117,6 +119,8 @@ class _ProfilePictureState extends State<ProfilePicture> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(25))),
         title: buildText("Pilih Opsi", 20, Colors.black),
         content: Column(
           mainAxisSize: MainAxisSize.min,

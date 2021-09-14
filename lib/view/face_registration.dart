@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:math' as math;
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
 import 'package:presensi_app/service/camera_service.dart';
 import 'package:presensi_app/service/face_recognition_service.dart';
@@ -152,14 +153,14 @@ class _FaceRegistrationState extends State<FaceRegistration> {
           backgroundColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
-            icon: Icon(Icons.arrow_back_rounded),
+            icon: FaIcon(FontAwesomeIcons.arrowLeft),
             color: Colors.black,
-            iconSize: 35,
+            iconSize: 25,
             onPressed: () {
               Navigator.pop(context);
             },
           ),
-          title: buildText("Face Registration", 24, Colors.black)),
+          title: buildText("Registrasi Wajah", 24, Colors.black)),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
@@ -169,7 +170,7 @@ class _FaceRegistrationState extends State<FaceRegistration> {
               borderRadius: BorderRadius.circular(25),
               child: Container(
                 width: width * 0.90,
-                height: height * 0.7,
+                height: height * 0.65,
                 child: FutureBuilder<void>(
                   future: _initializeControllerFuture,
                   builder: (context, snapshot) {
@@ -229,8 +230,8 @@ class _FaceRegistrationState extends State<FaceRegistration> {
               children: [
                 IconButton(
                     onPressed: () {},
-                    icon: Icon(
-                      Icons.info_outline_rounded,
+                    icon: FaIcon(
+                      FontAwesomeIcons.infoCircle,
                       size: 30,
                     )),
                 ElevatedButton(
@@ -238,9 +239,9 @@ class _FaceRegistrationState extends State<FaceRegistration> {
                       child: !_buttonClicked
                           ? Image(
                               image: AssetImage('assets/icon/face-id.png'),
-                              width: 25,
+                              width: 30,
                             )
-                          : Icon(Icons.done_rounded,
+                          : FaIcon(FontAwesomeIcons.check,
                               size: 25, color: Colors.white)),
                   style: ElevatedButton.styleFrom(
                     padding: EdgeInsets.all(20),
@@ -271,9 +272,9 @@ class _FaceRegistrationState extends State<FaceRegistration> {
                     _reload();
                     _start();
                   },
-                  icon: Icon(
-                    Icons.refresh_rounded,
-                    size: 30,
+                  icon: FaIcon(
+                    FontAwesomeIcons.redoAlt,
+                    size: 25,
                   ),
                 ),
               ],
