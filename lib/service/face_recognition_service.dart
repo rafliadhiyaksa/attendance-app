@@ -2,12 +2,13 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:camera/camera.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
 import 'package:presensi_app/provider/karyawan.dart';
 import 'package:tflite_flutter/tflite_flutter.dart' as tflite;
 import 'package:image/image.dart' as imglib;
 
-class FaceRecognitionService {
+class FaceRecognitionService with ChangeNotifier {
   static final FaceRecognitionService _faceRecognitionService =
       FaceRecognitionService._internal();
 
@@ -21,12 +22,12 @@ class FaceRecognitionService {
   double threshold = 1.0;
 
   /// data wajah sekarang
-  List? _currFaceData;
-  List? get currFaceData => this._currFaceData;
+  List _currFaceData = [];
+  List get currFaceData => _currFaceData;
 
   ///data wajah dari karyawan yang sudah terprediksi / wajah karyawan yang sudah login
-  List? _predictedData;
-  List? get predictedData => this._predictedData;
+  List _predictedData = [];
+  List get predictedData => this._predictedData;
 
   Karyawan _karyawan = Karyawan();
 
@@ -66,10 +67,11 @@ class FaceRecognitionService {
     output = output.reshape([192]);
 
     this._currFaceData = List.from(output);
+    notifyListeners();
   }
 
   dynamic predict() {
-    return _searchResult(this._currFaceData!);
+    return _searchResult(this._currFaceData);
   }
 
   ///preprocess : crop image agar lebih mudah untuk dideteksi
@@ -142,10 +144,10 @@ class FaceRecognitionService {
 
   dynamic _searchResult(List currFaceData) {
     print("predictedData = $predictedData");
-    if (this._predictedData == null) {
-      List data = _karyawan.dataKaryawan;
+    if (this._predictedData.length == 0) {
+      List data = _karyawan.dataWajah;
 
-      if (_karyawan.jumlahKaryawan == 0) return null;
+      if (_karyawan.jumlahDataWajah == 0) return null;
       double minDist = 999;
       double currDist = 0.0;
       dynamic predRes;
@@ -157,14 +159,13 @@ class FaceRecognitionService {
           currDist = _euclideanDistance(element.dataWajah, currFaceData);
           if (currDist <= threshold && currDist < minDist) {
             minDist = currDist;
-            predRes = element;
+            predRes = element.idKaryawan;
           }
         },
       );
       return predRes;
     } else {
       print("jalankan presensi");
-      if (predictedData!.length == 0) return null;
       double minDist = 999;
       double currDist = 0.0;
       dynamic predRes;
@@ -176,6 +177,11 @@ class FaceRecognitionService {
           'status': 1,
           'message': 'Wajah Sesuai',
           'predictedData': predictedData,
+        };
+      } else {
+        predRes = {
+          'status': 0,
+          'message': 'Wajah Tidak Sesuai',
         };
       }
       return predRes;
@@ -192,10 +198,12 @@ class FaceRecognitionService {
     return sqrt(sum);
   }
 
+  /// set value data wajah yang baru saja terdeteksi
   void setCurrFaceData(value) {
     this._currFaceData = value;
   }
 
+  /// set value data wajah yang sudah terprediksi
   void setPredictedData(value) {
     this._predictedData = value;
   }

@@ -21,9 +21,9 @@ class Presensi with ChangeNotifier {
   List<dynamic> _dataPresensi = [];
   List<dynamic> get dataPresensi => this._dataPresensi;
 
-  //menyimpan respon data dari database
-  // Map<String, dynamic> _dataResponse = {};
-  // Map<String, dynamic> get dataResponse => _dataResponse;
+  //menyimpan semua data respon dari database
+  Map<String, dynamic> _dataResponse = {};
+  Map<String, dynamic> get dataResponse => this._dataResponse;
 
   //menyimpan data setting presensi
   List<dynamic> _dataSetting = [];
@@ -31,15 +31,6 @@ class Presensi with ChangeNotifier {
 
   int get jumlahPresensi => _dataPresensi.length;
   int get jumlahSetting => _dataSetting.length;
-
-  //alert sukses
-  void _success(String message) {
-    AlertController.show(
-      "Success",
-      message,
-      TypeAlert.success,
-    );
-  }
 
   // alert gagal
   void _failed(String title, String message) {
@@ -50,17 +41,13 @@ class Presensi with ChangeNotifier {
     );
   }
 
-  //alert peringatan
-  void _warning(String title, String message) {
-    AlertController.show(
-      title,
-      message,
-      TypeAlert.warning,
-    );
+  int? idKaryawan;
+  void id(id) {
+    idKaryawan = id;
   }
 
   /// melakukan presensi masuk
-  Future<void> presensiMasuk({required int idKaryawan}) async {
+  Future<void> presensiMasuk() async {
     final now = DateFormat('HH:mm:ss').format(DateTime.now());
     print(now);
 
@@ -71,9 +58,8 @@ class Presensi with ChangeNotifier {
         body: {"ID_KARYAWAN": idKaryawan.toString(), "JAM_MASUK": now},
       );
       if (response.statusCode >= 200 && response.statusCode < 300) {
-        Map<String, dynamic> dataResponse = json.decode(response.body);
-
-        if (dataResponse['value'] == 1) {
+        _dataResponse = json.decode(response.body);
+        if (_dataResponse['value'] == 1) {
           List dataPresensi = dataResponse['data'];
           dataPresensi.forEach((element) {
             int idPresensi = jsonDecode(element['ID_PRESENSI']);
@@ -89,11 +75,8 @@ class Presensi with ChangeNotifier {
 
             _dataPresensi.add(presensi);
           });
-          notifyListeners();
-          _success(dataResponse['message']);
-        } else if (dataResponse['value'] == 2) {
-          _warning("Warning", dataResponse['message']);
         }
+        notifyListeners();
       } else {
         _failed("Error ${response.statusCode}", "Connection Failed");
       }
@@ -112,9 +95,9 @@ class Presensi with ChangeNotifier {
       http.Response response = await http.post(url, body: {"JAM_PULANG": now});
       if (response.statusCode >= 200 && response.statusCode < 300) {
         print(response.statusCode);
-        Map<String, dynamic> dataResponse = json.decode(response.body);
+        _dataResponse = json.decode(response.body);
 
-        if (dataResponse['value'] == 1) {
+        if (_dataResponse['value'] == 1) {
           List dataPresensi = dataResponse['data'];
           dataPresensi.forEach((element) {
             int idPresensi = jsonDecode(element['ID_PRESENSI']);
@@ -132,12 +115,13 @@ class Presensi with ChangeNotifier {
             _dataPresensi[index] = presensi;
           });
           notifyListeners();
-          _success(dataResponse['message']);
-        } else if (dataResponse['value'] == 2) {
-          _warning("Warning", dataResponse['message']);
-        } else {
-          _warning("Warning", dataResponse['message']);
+          // _success(dataResponse['message']);
         }
+        // else if (dataResponse['value'] == 2) {
+        //   _warning("Warning", dataResponse['message']);
+        // } else {
+        //   _warning("Warning", dataResponse['message']);
+        // }
       } else {
         _failed("Error ${response.statusCode}", "Connection Failed");
       }
@@ -147,28 +131,15 @@ class Presensi with ChangeNotifier {
   }
 
   /// get data presensi sesuai id karyawan
-  Future getPresensi(int idKaryawan) async {
+  Future getPresensi() async {
     var response = await http
         .get(Uri.parse(BaseUrl.presensiAPI + "id_karyawan=$idKaryawan"));
 
     List dataResponse = json.decode(response.body)['data'];
+    _dataPresensi = [];
     dataResponse.forEach((element) {
       int idPresensi = jsonDecode(element['ID_PRESENSI']);
       int idKaryawan = jsonDecode(element['ID_KARYAWAN']);
-      DateTime tanggal =
-          DateFormat('yyyy-MM-dd').parse(element['TGL_PRESENSI']);
-      DateTime jamMasuk = DateFormat('HH:mm:ss').parse(element['JAM_MASUK']);
-      jamMasuk = new DateTime(tanggal.year, tanggal.month, tanggal.day,
-          jamMasuk.hour, jamMasuk.minute, jamMasuk.second);
-
-      DateTime? jamPulang;
-      if (element['JAM_PULANG'] == null) {
-        jamPulang = null;
-      } else {
-        jamPulang = DateFormat('HH:mm:ss').parse(element['JAM_PULANG']);
-        jamMasuk = new DateTime(tanggal.year, tanggal.month, tanggal.day,
-            jamPulang.hour, jamPulang.minute, jamPulang.second);
-      }
 
       var presensi = ModelPresensi(
         idPresensi: idPresensi,
@@ -178,7 +149,7 @@ class Presensi with ChangeNotifier {
         jamPulang: element['JAM_PULANG'],
       );
       if (_dataPresensi
-          .every((element) => element.idPresensi != presensi.idPresensi)) {
+          .every((element) => presensi.idPresensi != element.idPresensi)) {
         _dataPresensi.add(presensi);
       }
     });
@@ -206,8 +177,4 @@ class Presensi with ChangeNotifier {
     });
     notifyListeners();
   }
-
-  // void setDataPresensi(value) {
-  //   this._dataPresensi = value;
-  // }
 }

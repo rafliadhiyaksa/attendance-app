@@ -1,42 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dropdown_alert/dropdown_alert.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:presensi_app/provider/alamat.dart';
-import 'package:presensi_app/provider/presensi.dart';
-import 'package:presensi_app/widgets/navigation_bar.dart';
+import 'package:presensi_app/view/profile_page.dart';
 import 'package:supercharged/supercharged.dart';
 import 'package:provider/provider.dart';
-
-import 'package:presensi_app/view/login_page.dart';
-import 'package:presensi_app/provider/karyawan.dart';
-import 'package:presensi_app/view/registration_page.dart';
+import './provider/alamat.dart';
+import './provider/presensi.dart';
+import './service/face_recognition_service.dart';
+import './widgets/navigation_bar.dart';
+import './view/login_page.dart';
+import './provider/karyawan.dart';
+import './view/registration_page.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   SystemChrome.setSystemUIOverlayStyle(
-    SystemUiOverlayStyle(statusBarColor: Colors.transparent),
+    SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
+    ),
   );
 
   runApp(MyApp());
-  configLoading();
-}
-
-void configLoading() {
-  EasyLoading.instance
-    ..displayDuration = const Duration(milliseconds: 2000)
-    ..indicatorType = EasyLoadingIndicatorType.fadingCircle
-    ..loadingStyle = EasyLoadingStyle.dark
-    ..indicatorSize = 45.0
-    ..radius = 10.0
-    ..progressColor = Colors.yellow
-    ..backgroundColor = Colors.green
-    ..indicatorColor = Colors.yellow
-    ..textColor = Colors.yellow
-    ..maskColor = Colors.blue.withOpacity(0.5)
-    ..userInteractions = false
-    ..dismissOnTap = false;
 }
 
 class MyApp extends StatelessWidget {
@@ -46,47 +32,60 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (context) => Karyawan()),
         ChangeNotifierProvider(create: (context) => Alamat()),
-        ChangeNotifierProvider(create: (context) => Presensi()),
+        ChangeNotifierProvider(create: (context) => FaceRecognitionService()),
+        ChangeNotifierProxyProvider<Karyawan, Presensi>(
+            create: (context) => Presensi(),
+            update: (context, karyawan, presensi) =>
+                presensi!..id(karyawan.dataKaryawan.idKaryawan)),
       ],
-      child: MaterialApp(
-        title: 'Attendance App',
-        debugShowCheckedModeBanner: false,
-        color: '3546AB'.toColor(),
-        theme: ThemeData(
-            primaryColor: '3546AB'.toColor(),
-            primarySwatch: Colors.indigo,
-            fontFamily: "ProductSans",
-            visualDensity: VisualDensity.adaptivePlatformDensity,
-            textTheme: TextTheme(
-              bodyText2: TextStyle(
-                fontFamily: "ProductSans",
-                fontWeight: FontWeight.w700,
-                fontSize: 20,
+      builder: (context, child) => Consumer<Karyawan>(
+        builder: (context, karyawan, child) => MaterialApp(
+            debugShowCheckedModeBanner: false,
+            // color: '3546AB'.toColor(),
+            theme: ThemeData(
+              primaryColor: '3546AB'.toColor(),
+              primarySwatch: Colors.indigo,
+              fontFamily: "ProductSans",
+              visualDensity: VisualDensity.adaptivePlatformDensity,
+              textTheme: TextTheme(
+                bodyText2: TextStyle(
+                    fontFamily: "ProductSans",
+                    fontWeight: FontWeight.w700,
+                    fontSize: 15),
+                button: TextStyle(
+                    fontFamily: "ProductSans", fontWeight: FontWeight.w700),
               ),
-              button: TextStyle(
-                  fontFamily: "ProductSans", fontWeight: FontWeight.w700),
-            ),
-            appBarTheme: AppBarTheme(
-                // iconTheme: IconThemeData(color: Colors.white, size: 30),
+              appBarTheme: AppBarTheme(
                 centerTitle: true,
                 elevation: 0,
-                textTheme: TextTheme(
-                    headline6: TextStyle(
-                        fontFamily: "ProductSans",
-                        fontSize: 22,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700)))),
-        builder: EasyLoading.init(
-          builder: (context, child) => Stack(
-            children: [child!, DropdownAlert()],
-          ),
-        ),
-        home: Login(),
-        routes: {
-          'login': (context) => Login(),
-          'registration': (context) => RegistrationPage(),
-          'navigation-bar': (context) => NavigationBar(),
-        },
+                toolbarTextStyle: TextStyle(
+                    fontFamily: "ProductSans",
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700),
+              ),
+            ),
+            builder: (context, child) => Stack(
+                  children: [child!, DropdownAlert()],
+                ),
+            home: karyawan.isAuth
+                ? NavigationBar()
+                : FutureBuilder(
+                    future: karyawan.autoLogin(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Scaffold(
+                            body: Center(
+                          child: CircularProgressIndicator(),
+                        ));
+                      }
+                      return Login();
+                    }),
+            routes: {
+              'login': (context) => Login(),
+              'registration': (context) => RegistrationPage(),
+              'navigation-bar': (context) => NavigationBar(),
+              'profil': (context) => ProfilePage(),
+            }),
       ),
     );
   }

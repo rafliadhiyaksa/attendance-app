@@ -1,3 +1,5 @@
+import 'dart:io';
+
 class ModelKaryawan {
   int? idKaryawan;
   String? namaDepan,

@@ -2,7 +2,6 @@ import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.da
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:presensi_app/models/model_karyawan.dart';
 import 'package:presensi_app/view/presensi_page.dart';
 import 'package:supercharged/supercharged.dart';
 import 'package:presensi_app/service/face_recognition_service.dart';
@@ -60,22 +59,18 @@ class _NavigationBarState extends State<NavigationBar> {
     // print(widget.predictedKaryawan);
     initializeDateFormatting();
 
-    final predictedUser =
-        ModalRoute.of(context)!.settings.arguments as ModelKaryawan;
+    // final predictedUser =
+    //     ModalRoute.of(context)!.settings.arguments as ModelKaryawan;
     double statusBar = MediaQuery.of(context).padding.top;
     final List _screens = [
-      HomePage(predictedUser),
-      HistoryPage(predictedUser.idKaryawan!),
+      HomePage(),
+      HistoryPage(),
     ];
     return Scaffold(
       extendBody: true,
-      // backgroundColor: primary,
-      body: Padding(
-        padding: EdgeInsets.only(top: statusBar),
-        child: PageStorage(
-          bucket: bucket,
-          child: _screens[_currentIndex],
-        ),
+      body: PageStorage(
+        bucket: bucket,
+        child: _screens[_currentIndex],
       ),
       floatingActionButton: Container(
         height: 70,
@@ -91,10 +86,8 @@ class _NavigationBarState extends State<NavigationBar> {
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (BuildContext context) => PresensiPage(
-                    cameraDescription: cameraDescription!,
-                    predictedUser: predictedUser,
-                  ),
+                  builder: (BuildContext context) =>
+                      PresensiPage(cameraDescription: cameraDescription!),
                 ),
               );
             },

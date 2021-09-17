@@ -16,8 +16,12 @@ class _LoginState extends State<Login> {
   FaceRecognitionService _faceRecognitionService = FaceRecognitionService();
   MLKitService _mlKitService = MLKitService();
 
-  CameraDescription? _cameraDescription;
-  CameraDescription? get cameraDescription => _cameraDescription;
+  CameraDescription _cameraDescription = CameraDescription(
+    name: "Presensi Camera",
+    lensDirection: CameraLensDirection.front,
+    sensorOrientation: 0,
+  );
+  CameraDescription get cameraDescription => _cameraDescription;
 
   bool loading = false;
   Color primary = '3546AB'.toColor();
@@ -47,6 +51,7 @@ class _LoginState extends State<Login> {
 
   //show / hide loading logo
   _setLoading(bool value) {
+    if (!mounted) return;
     setState(() {
       loading = value;
     });
@@ -125,7 +130,7 @@ class _LoginState extends State<Login> {
                                         builder: (BuildContext context) =>
                                             FaceLogin(
                                                 cameraDescription:
-                                                    cameraDescription!),
+                                                    cameraDescription),
                                       ),
                                     );
                                   },

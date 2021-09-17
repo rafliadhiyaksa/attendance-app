@@ -12,31 +12,39 @@ class CameraService {
 
   CameraService._internal();
 
-  CameraController? _cameraController;
-  CameraController? get cameraController => this._cameraController;
+  CameraController _cameraController = CameraController(
+      CameraDescription(
+          name: "Presensi Camera",
+          lensDirection: CameraLensDirection.front,
+          sensorOrientation: 0),
+      ResolutionPreset.high);
+  CameraController get cameraController => this._cameraController;
 
-  CameraDescription? _cameraDescription;
+  CameraDescription _cameraDescription = CameraDescription(
+      name: "Presensi Camera",
+      lensDirection: CameraLensDirection.front,
+      sensorOrientation: 0);
 
-  InputImageRotation? _cameraRotation;
-  InputImageRotation? get cameraRotation => this._cameraRotation;
+  InputImageRotation _cameraRotation = InputImageRotation.Rotation_0deg;
+  InputImageRotation get cameraRotation => this._cameraRotation;
 
-  String? _imagePath;
-  String? get imagePath => this._imagePath;
+  String _imagePath = "";
+  String get imagePath => this._imagePath;
 
   Future startService(CameraDescription cameraDescription) async {
     this._cameraDescription = cameraDescription;
     this._cameraController = CameraController(
-      this._cameraDescription!,
+      this._cameraDescription,
       ResolutionPreset.high,
       enableAudio: false,
     );
 
     //set rotasi dari image
     this._cameraRotation =
-        rotationIntToImageRotation(this._cameraDescription!.sensorOrientation);
+        rotationIntToImageRotation(this._cameraDescription.sensorOrientation);
 
     //inisialize controller, return future
-    return this._cameraController!.initialize();
+    return this._cameraController.initialize();
   }
 
   InputImageRotation rotationIntToImageRotation(int rotation) {
@@ -54,7 +62,7 @@ class CameraService {
 
   //ambil gambar dan simpan di path
   Future<XFile> takePicture() async {
-    XFile file = await _cameraController!.takePicture();
+    XFile file = await _cameraController.takePicture();
     this._imagePath = file.path;
     return file;
   }
@@ -62,12 +70,12 @@ class CameraService {
   //return image size
   Size getImageSize() {
     return Size(
-      _cameraController!.value.previewSize!.height,
-      _cameraController!.value.previewSize!.width,
+      _cameraController.value.previewSize!.height,
+      _cameraController.value.previewSize!.width,
     );
   }
 
   dispose() {
-    this._cameraController!.dispose();
+    this._cameraController.dispose();
   }
 }

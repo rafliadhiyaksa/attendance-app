@@ -4,11 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:presensi_app/provider/api.dart';
+import 'package:presensi_app/provider/karyawan.dart';
+import 'package:provider/provider.dart';
 import 'package:supercharged/supercharged.dart';
 
 class ProfilePicture extends StatefulWidget {
-  static File? _image;
-  static File? get image => _image;
+  static dynamic _image;
+  static dynamic get image => _image;
+
+  ProfilePicture();
 
   void setValueImage(value) {
     ProfilePicture._image = value;
@@ -22,28 +27,32 @@ class _ProfilePictureState extends State<ProfilePicture> {
   Color primary = '3546AB'.toColor();
   final crop = ImageCropper();
   final picker = ImagePicker();
+  String? imgUrl;
 
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<Karyawan>(context, listen: false).dataKaryawan;
     return CircleAvatar(
-      radius: 80,
-      backgroundColor: primary,
+      radius: 75,
+      backgroundColor: Colors.grey,
       child: Stack(
         children: [
           Container(
             alignment: Alignment.center,
             child: CircleAvatar(
-              radius: 77,
+              radius: 72,
               backgroundColor: Colors.grey.shade300,
-              backgroundImage: (ProfilePicture.image != null
+              backgroundImage: ProfilePicture.image != null
                   ? FileImage(ProfilePicture.image!)
-                  : null),
-              child: (ProfilePicture.image == null
+                  : NetworkImage(
+                          BaseUrl.uploadAPI + provider.profilImg.toString())
+                      as ImageProvider,
+              child: ProfilePicture.image == null && provider.profilImg == null
                   ? FaIcon(
                       FontAwesomeIcons.userAlt,
-                      size: 30,
+                      size: 25,
                     )
-                  : null),
+                  : null,
             ),
           ),
           Container(
@@ -60,11 +69,11 @@ class _ProfilePictureState extends State<ProfilePicture> {
                   _showPickOptionsDialog(context);
                 },
                 child: CircleAvatar(
-                  radius: 25,
+                  radius: 23,
                   child: FaIcon(
                     FontAwesomeIcons.camera,
                     size: 20,
-                    color: Colors.black,
+                    color: primary,
                   ),
                   backgroundColor: 'E8E8E8'.toColor(),
                 ),
@@ -101,6 +110,7 @@ class _ProfilePictureState extends State<ProfilePicture> {
         androidUiSettings: AndroidUiSettings(
           toolbarColor: primary,
           toolbarWidgetColor: Colors.white,
+          activeControlsWidgetColor: primary,
         ),
         sourcePath: pickedFile.path,
         aspectRatioPresets: [

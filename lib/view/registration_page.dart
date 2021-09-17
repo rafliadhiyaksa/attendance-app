@@ -4,10 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter_dropdown_alert/alert_controller.dart';
 import 'package:flutter_dropdown_alert/model/data_alert.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:form_field_validator/form_field_validator.dart';
-import 'package:presensi_app/provider/presensi.dart';
 import 'package:supercharged/supercharged.dart';
 import 'package:provider/provider.dart';
 
@@ -55,19 +53,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
   dynamic namaKecamatan;
   dynamic namaKelurahan;
 
-  Timer? _timer;
-
-  @override
-  void initState() {
-    super.initState();
-    EasyLoading.addStatusCallback((status) {
-      print('EasyLoading Status $status');
-      if (status == EasyLoadingStatus.dismiss) {
-        _timer?.cancel();
-      }
-    });
-  }
-
   @override
   void didChangeDependencies() {
     if (isInit) {
@@ -82,7 +67,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
   @override
   void dispose() {
     this._profilePicture.setValueImage(null);
-    this._faceRecognitionService.setCurrFaceData(null);
+    this._faceRecognitionService.setCurrFaceData([]);
     super.dispose();
   }
 
@@ -92,7 +77,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
         ModalRoute.of(context)!.settings.arguments as CameraDescription;
     final karyawanProvider = Provider.of<Karyawan>(context, listen: false);
     final alamatProvider = Provider.of<Alamat>(context, listen: false);
-    List? currFaceData = _faceRecognitionService.currFaceData;
+    List currFaceData =
+        Provider.of<FaceRecognitionService>(context).currFaceData;
 
     double width = MediaQuery.of(context).size.width;
 
@@ -107,7 +93,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
           elevation: 0,
           leading: IconButton(
             icon: FaIcon(FontAwesomeIcons.arrowLeft),
-            iconSize: 25,
+            iconSize: 20,
             onPressed: () {
               buildShowDialog(context);
             },
@@ -293,8 +279,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
                           children: [
                             Expanded(
                               child: Divider(
-                                thickness: 2,
-                                color: Colors.grey,
+                                thickness: 3,
+                                color: Colors.grey.shade400,
                               ),
                             ),
                             Container(
@@ -474,7 +460,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                             Container(
                               child: FaIcon(
                                 FontAwesomeIcons.checkCircle,
-                                color: (currFaceData == null)
+                                color: (currFaceData.length == 0)
                                     ? Colors.grey
                                     : Colors.green,
                                 size: MediaQuery.of(context).size.width * 0.13,
@@ -493,7 +479,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
                           height: 60,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              // onPrimary: Colors.white,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(15),
                               ),
@@ -502,12 +487,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
                             onPressed: () {
                               if (_key.currentState!.validate() &&
                                   ProfilePicture.image != null &&
-                                  _faceRecognitionService.currFaceData !=
-                                      null) {
-                                print("validated");
+                                  currFaceData.length != 0) {
                                 showDialog(
                                     context: context,
-                                    builder: (context) {
+                                    builder: (ctx) {
                                       return AlertDialog(
                                         shape: RoundedRectangleBorder(
                                             borderRadius: BorderRadius.all(
@@ -521,7 +504,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                                         actions: [
                                           TextButton(
                                               onPressed: () {
-                                                Navigator.of(context).pop();
+                                                Navigator.of(ctx).pop();
                                               },
                                               child: buildText(
                                                   "Tidak", 15, primary)),
@@ -547,7 +530,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                                                   kota: namaKota,
                                                   kecamatan: namaKecamatan,
                                                   kelurahan: namaKelurahan,
-                                                  facePict: currFaceData!,
+                                                  facePict: currFaceData,
                                                 );
                                                 Navigator.of(context).pop();
                                               },
@@ -596,7 +579,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
     return showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) {
+      builder: (ctx) {
         return AlertDialog(
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(25))),
@@ -606,12 +589,12 @@ class _RegistrationPageState extends State<RegistrationPage> {
           actions: [
             TextButton(
                 onPressed: () {
-                  Navigator.of(context).pop(false);
+                  Navigator.of(ctx).pop(false);
                 },
                 child: buildText("Tidak", 15, primary)),
             TextButton(
                 onPressed: () {
-                  Navigator.of(context).pop(true);
+                  Navigator.of(ctx).pop(true);
                   Navigator.of(context).pop(true);
                 },
                 child: buildText("Ya", 15, primary))

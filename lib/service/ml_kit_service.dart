@@ -14,8 +14,8 @@ class MLKitService {
 
   CameraService _cameraService = CameraService();
 
-  late FaceDetector _faceDetector;
-  FaceDetector get faceDetector => _faceDetector;
+  FaceDetector? _faceDetector;
+  FaceDetector? get faceDetector => _faceDetector;
 
   void initialize() {
     _faceDetector = GoogleMlKit.vision.faceDetector(
@@ -45,7 +45,7 @@ class MLKitService {
 
     InputImageData _inputImageData = InputImageData(
       size: imageSize,
-      imageRotation: _cameraService.cameraRotation!,
+      imageRotation: _cameraService.cameraRotation,
       inputImageFormat: inputImageFormat!,
       planeData: planeData,
     );
@@ -56,7 +56,11 @@ class MLKitService {
     );
 
     //proses image dan membuat kesimpulan
-    List<Face> faces = await this._faceDetector.processImage(_inputImage);
+    List<Face> faces = await this._faceDetector!.processImage(_inputImage);
     return faces;
+  }
+
+  void close() {
+    _faceDetector!.close();
   }
 }

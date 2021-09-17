@@ -22,10 +22,10 @@ class FaceRegistration extends StatefulWidget {
 class _FaceRegistrationState extends State<FaceRegistration> {
   final Color primary = '3546AB'.toColor();
 
-  String? imagePath;
+  String imagePath = "";
   Face? faceDetected;
 
-  late Size _imageSize;
+  Size _imageSize = Size(0, 0);
   Size get imageSize => this._imageSize;
 
   bool _detectingFaces = false;
@@ -83,7 +83,7 @@ class _FaceRegistrationState extends State<FaceRegistration> {
     } else {
       _saving = true;
       await Future.delayed(Duration(milliseconds: 500));
-      await _cameraService.cameraController!.stopImageStream();
+      await _cameraService.cameraController.stopImageStream();
       await Future.delayed(Duration(milliseconds: 200));
       XFile file = await _cameraService.takePicture();
       imagePath = file.path;
@@ -100,8 +100,14 @@ class _FaceRegistrationState extends State<FaceRegistration> {
   _frameFaces() {
     _imageSize = _cameraService.getImageSize();
 
-    _cameraService.cameraController!.startImageStream((image) async {
-      if (_cameraService.cameraController != null) {
+    _cameraService.cameraController.startImageStream((image) async {
+      if (_cameraService.cameraController !=
+          CameraController(
+              CameraDescription(
+                  name: "Presensi Camera",
+                  lensDirection: CameraLensDirection.front,
+                  sensorOrientation: 0),
+              ResolutionPreset.high)) {
         if (_detectingFaces) return;
 
         _detectingFaces = true;
@@ -155,12 +161,12 @@ class _FaceRegistrationState extends State<FaceRegistration> {
           leading: IconButton(
             icon: FaIcon(FontAwesomeIcons.arrowLeft),
             color: Colors.black,
-            iconSize: 25,
+            iconSize: 20,
             onPressed: () {
               Navigator.pop(context);
             },
           ),
-          title: buildText("Registrasi Wajah", 24, Colors.black)),
+          title: buildText("Face Registration", 20, Colors.black)),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
@@ -180,7 +186,7 @@ class _FaceRegistrationState extends State<FaceRegistration> {
                           alignment: Alignment.center,
                           child: FittedBox(
                             fit: BoxFit.cover,
-                            child: Image.file(File(imagePath!)),
+                            child: Image.file(File(imagePath)),
                           ),
                           transform: Matrix4.rotationY(mirror),
                         );
@@ -196,12 +202,12 @@ class _FaceRegistrationState extends State<FaceRegistration> {
                                 width: width,
                                 height: width *
                                     _cameraService
-                                        .cameraController!.value.aspectRatio,
+                                        .cameraController.value.aspectRatio,
                                 child: Stack(
                                   fit: StackFit.expand,
                                   children: [
                                     CameraPreview(
-                                        _cameraService.cameraController!),
+                                        _cameraService.cameraController),
                                     CustomPaint(
                                       painter: FacePainter(
                                         face: faceDetected,

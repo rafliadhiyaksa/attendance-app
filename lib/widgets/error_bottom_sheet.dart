@@ -1,6 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:supercharged/supercharged.dart';
-import 'package:system_settings/system_settings.dart';
 
 class ErrorBottomSheet {
   static final ErrorBottomSheet _errorBottomSheet =
@@ -10,13 +11,15 @@ class ErrorBottomSheet {
   }
   ErrorBottomSheet._internal();
 
-  Future<dynamic> errorBottomSheet(
-      BuildContext context, Function onPressedRetry) {
+  BuildContext? bottomContext;
+
+  FutureOr<Null> errorBottomSheet(
+      {required BuildContext context, required Function onPressedRetry}) {
     Color primary = '3546AB'.toColor();
 
     return showModalBottomSheet(
       context: context,
-      builder: (context) {
+      builder: (bottomContext) {
         return Container(
           height: MediaQuery.of(context).size.height * 0.4,
           padding: EdgeInsets.all(10),
@@ -34,45 +37,25 @@ class ErrorBottomSheet {
                       style: TextStyle(fontSize: 15)),
                 ],
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Container(
-                    width: MediaQuery.of(context).size.width * 0.35,
-                    height: 45.0,
-                    child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          primary: primary,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                        ),
-                        onPressed: () {
-                          onPressedRetry();
-                          Navigator.pop(context);
-                        },
-                        child: Text(
-                          "Retry",
-                          style: TextStyle(fontSize: 20),
-                        )),
+              Container(
+                width: MediaQuery.of(context).size.width * 0.7,
+                height: 45.0,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    primary: primary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
                   ),
-                  Container(
-                    width: MediaQuery.of(context).size.width * 0.35,
-                    height: 45.0,
-                    child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          primary: primary,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                        ),
-                        onPressed: () => SystemSettings.wireless(),
-                        child: Text(
-                          "Setting",
-                          style: TextStyle(fontSize: 20),
-                        )),
+                  onPressed: () {
+                    onPressedRetry();
+                    Navigator.pop(context);
+                  },
+                  child: Text(
+                    "Retry",
+                    style: TextStyle(fontSize: 20),
                   ),
-                ],
+                ),
               ),
             ],
           ),
