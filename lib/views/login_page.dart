@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:supercharged/supercharged.dart';
 
-import 'package:presensi_app/service/face_recognition_service.dart';
-import 'package:presensi_app/service/ml_kit_service.dart';
-import 'package:presensi_app/view/face_login.dart';
+import '../service/face_recognition_service.dart';
+import '../service/ml_kit_service.dart';
+import './face_login.dart';
 
 class Login extends StatefulWidget {
   @override

@@ -1,12 +1,14 @@
+import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
-import 'package:presensi_app/provider/karyawan.dart';
 import 'package:tflite_flutter/tflite_flutter.dart' as tflite;
 import 'package:image/image.dart' as imglib;
+
+import '../provider/karyawan.dart';
 
 class FaceRecognitionService with ChangeNotifier {
   static final FaceRecognitionService _faceRecognitionService =
@@ -28,6 +30,9 @@ class FaceRecognitionService with ChangeNotifier {
   ///data wajah dari karyawan yang sudah terprediksi / wajah karyawan yang sudah login
   List _predictedData = [];
   List get predictedData => this._predictedData;
+
+  imglib.Image? cropImage;
+  // File('thumbnail.png').writeAsBytesSync(imglib.encodePng(cropImage));
 
   Karyawan _karyawan = Karyawan();
 
@@ -60,7 +65,7 @@ class FaceRecognitionService with ChangeNotifier {
 
     /// reshape input dan output ke format model
     input = input.reshape([1, 112, 112, 3]);
-    List output = List.generate(1, (index) => List.filled(192, 0));
+    List output = List.generate(1, (_) => List.filled(192, 0));
 
     ///jalankan dan ubah data
     this._interpreter!.run(input, output);
@@ -94,6 +99,10 @@ class FaceRecognitionService with ChangeNotifier {
     double y = faceDetected.boundingBox.top - 10.0;
     double w = faceDetected.boundingBox.width + 10.0;
     double h = faceDetected.boundingBox.height + 10.0;
+
+    cropImage = imglib.copyCrop(
+        convertedImage, x.round(), y.round(), w.round(), h.round());
+
     return imglib.copyCrop(
         convertedImage, x.round(), y.round(), w.round(), h.round());
   }
@@ -130,9 +139,9 @@ class FaceRecognitionService with ChangeNotifier {
     var buffer = Float32List.view(convertedBytes.buffer);
     int pixelIndex = 0;
 
-    for (var i = 0; i < 112; i++) {
-      for (var j = 0; j < 112; j++) {
-        var pixel = image.getPixel(j, i);
+    for (var y = 0; y < 112; y++) {
+      for (var x = 0; x < 112; x++) {
+        var pixel = image.getPixel(x, y);
 
         buffer[pixelIndex++] = (imglib.getRed(pixel) - 128) / 128;
         buffer[pixelIndex++] = (imglib.getGreen(pixel) - 128) / 128;
@@ -196,6 +205,11 @@ class FaceRecognitionService with ChangeNotifier {
       sum += pow((e1[i] - e2[i]), 2);
     }
     return sqrt(sum);
+  }
+
+  //ignore: must_call_super
+  void dispose() {
+    this._interpreter!.close();
   }
 
   /// set value data wajah yang baru saja terdeteksi

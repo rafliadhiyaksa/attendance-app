@@ -2,14 +2,15 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
-import 'package:presensi_app/provider/karyawan.dart';
-import 'package:presensi_app/service/camera_service.dart';
-import 'package:presensi_app/service/face_recognition_service.dart';
-import 'package:presensi_app/service/ml_kit_service.dart';
-import 'package:presensi_app/widgets/error_bottom_sheet.dart';
-import 'package:presensi_app/widgets/face_painter.dart';
 import 'package:provider/provider.dart';
 import 'package:supercharged/supercharged.dart';
+
+import '../provider/karyawan.dart';
+import '../service/camera_service.dart';
+import '../service/face_recognition_service.dart';
+import '../service/ml_kit_service.dart';
+import '../widgets/error_bottom_sheet.dart';
+import '../widgets/face_painter.dart';
 
 class FaceLogin extends StatefulWidget {
   final CameraDescription cameraDescription;
@@ -69,10 +70,7 @@ class _FaceLoginState extends State<FaceLogin> {
       }).catchError((err) {
         print(err);
         return _errorBottomSheet.errorBottomSheet(
-            context: context,
-            onPressedRetry: () {
-              isInit = true;
-            });
+            context: context, onPressedRetry: () {});
       });
     }
     isInit = false;
@@ -83,10 +81,9 @@ class _FaceLoginState extends State<FaceLogin> {
   @override
   void dispose() {
     _cameraService.dispose();
-
-    // hapus data wajah yang baru saja terdeteksi
-    this._faceRecognitionService.setCurrFaceData([]);
-
+    _faceRecognitionService.dispose();
+    _faceRecognitionService.setCurrFaceData([]);
+    _mlKitService.close();
     super.dispose();
   }
 
@@ -125,9 +122,10 @@ class _FaceLoginState extends State<FaceLogin> {
             final karyawanProvider =
                 Provider.of<Karyawan>(context, listen: false);
             if (karyawanProvider.dataWajah.length != 0) {
-              // Future.delayed(Duration(milliseconds: 500), () {});
-              _faceRecognitionService.setCurrentPrediction(
-                  image, faceDetected!);
+              Future.delayed(Duration(milliseconds: 500), () {
+                _faceRecognitionService.setCurrentPrediction(
+                    image, faceDetected!);
+              });
               dynamic idKaryawan = _predictUser();
               if (idKaryawan != null) {
                 setState(() {
@@ -145,18 +143,6 @@ class _FaceLoginState extends State<FaceLogin> {
                   print(err);
                 }
               }
-              // else {
-              //   await _cameraService.cameraController.stopImageStream();
-              //   errorShowDialog(context, content: "Wajah Anda Belum Terdaftar",
-              //       onPressed: () {
-              //     _frameFaces();
-              //     Navigator.pop(context);
-              //   });
-
-              //   setState(() {
-              //     isLogin = false;
-              //   });
-              // }
             }
           } else {
             setState(() {

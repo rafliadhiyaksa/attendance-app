@@ -1,7 +1,8 @@
-import 'package:google_ml_kit/google_ml_kit.dart';
-import 'package:camera/camera.dart';
-import 'package:presensi_app/service/camera_service.dart';
 import 'package:flutter/material.dart';
+import 'package:camera/camera.dart';
+import 'package:google_ml_kit/google_ml_kit.dart';
+
+import './camera_service.dart';
 
 class MLKitService {
   static final MLKitService _cameraServiceService = MLKitService._internal();

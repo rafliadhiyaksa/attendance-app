@@ -2,7 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:presensi_app/provider/api.dart';
+
+import './api.dart';
 
 class Alamat with ChangeNotifier {
   // menyimpan data provinsi
@@ -23,10 +24,9 @@ class Alamat with ChangeNotifier {
 
   /// mengambil data provinsi dari api
   void getProvinsi() async {
-    var hasilGetData =
-        await http.get(Uri.parse(BaseUrl.alamatAPI + "provinsi"));
+    var response = await http.get(Uri.parse(BaseUrl.alamatAPI + "provinsi"));
 
-    _dataProvinsi = json.decode(hasilGetData.body)["provinsi"];
+    _dataProvinsi = json.decode(response.body)["provinsi"];
     notifyListeners();
   }
 

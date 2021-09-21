@@ -9,14 +9,13 @@ import 'package:form_field_validator/form_field_validator.dart';
 import 'package:supercharged/supercharged.dart';
 import 'package:provider/provider.dart';
 
-import 'package:presensi_app/provider/alamat.dart';
-import 'package:presensi_app/provider/karyawan.dart';
-
-import 'package:presensi_app/service/face_recognition_service.dart';
-import 'package:presensi_app/view/face_registration.dart';
-import 'package:presensi_app/widgets/build_dropdown.dart';
-import 'package:presensi_app/widgets/build_profile_picture.dart';
-import 'package:presensi_app/widgets/build_text_form_field.dart';
+import '../provider/alamat.dart';
+import '../provider/karyawan.dart';
+import '../service/face_recognition_service.dart';
+import './face_registration.dart';
+import '../widgets/build_dropdown.dart';
+import '../widgets/build_profile_picture.dart';
+import '../widgets/build_text_form_field.dart';
 
 class RegistrationPage extends StatefulWidget {
   @override
@@ -68,6 +67,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
   void dispose() {
     this._profilePicture.setValueImage(null);
     this._faceRecognitionService.setCurrFaceData([]);
+    TextEditingController().dispose();
     super.dispose();
   }
 

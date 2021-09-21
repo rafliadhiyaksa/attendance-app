@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:form_field_validator/form_field_validator.dart';
-import 'package:presensi_app/models/model_karyawan.dart';
-import 'package:presensi_app/provider/alamat.dart';
-import 'package:presensi_app/provider/karyawan.dart';
-import 'package:presensi_app/widgets/build_dropdown.dart';
-import 'package:presensi_app/widgets/build_profile_picture.dart';
-import 'package:presensi_app/widgets/build_text_form_field.dart';
 import 'package:provider/provider.dart';
 import 'package:supercharged/supercharged.dart';
+
+import '../provider/alamat.dart';
+import '../provider/karyawan.dart';
+import '../widgets/build_dropdown.dart';
+import '../widgets/build_profile_picture.dart';
+import '../widgets/build_text_form_field.dart';
 
 class ProfilePage extends StatefulWidget {
   ProfilePage({Key? key}) : super(key: key);
@@ -30,6 +30,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void dispose() {
     _profilePicture.setValueImage(null);
+    TextEditingController().dispose();
     super.dispose();
   }
 
@@ -43,7 +44,7 @@ class _ProfilePageState extends State<ProfilePage> {
     final Color primary = '3546AB'.toColor();
 
     final emailController =
-        TextEditingController(text: id == null ? "" : dataKaryawan.email!);
+        TextEditingController(text: id == null ? "" : dataKaryawan.email);
     final tempatLahirController =
         TextEditingController(text: id == null ? "" : dataKaryawan.tempatLahir);
     final dateController =
@@ -55,15 +56,10 @@ class _ProfilePageState extends State<ProfilePage> {
     final alamatController =
         TextEditingController(text: id == null ? "" : dataKaryawan.alamat);
 
-    dynamic valueProvinsi = id == null ? "" : dataKaryawan.provinsi!;
-    dynamic valueKota = id == null ? "" : dataKaryawan.kota!;
-    dynamic valueKecamatan = id == null ? "" : dataKaryawan.kecamatan!;
-    dynamic valueKelurahan = id == null ? "" : dataKaryawan.kelurahan!;
-
-    dynamic namaProvinsi;
-    dynamic namaKota;
-    dynamic namaKecamatan;
-    dynamic namaKelurahan;
+    dynamic valueProvinsi = id == null ? "" : dataKaryawan.provinsi;
+    dynamic valueKota = id == null ? "" : dataKaryawan.kota;
+    dynamic valueKecamatan = id == null ? "" : dataKaryawan.kecamatan;
+    dynamic valueKelurahan = id == null ? "" : dataKaryawan.kelurahan;
 
     return Scaffold(
       appBar: AppBar(
@@ -140,6 +136,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         top: 80, right: 32, left: 32, bottom: 32),
                     child: Column(
                       children: [
+                        // nama
                         buildText(
                             id == null
                                 ? ""
@@ -148,11 +145,12 @@ class _ProfilePageState extends State<ProfilePage> {
                             Colors.black),
                         SizedBox(height: 5.0),
 
+                        // jabatan
                         buildText(id == null ? "" : dataKaryawan.jabatan!, 15,
                             Colors.grey.shade700),
                         SizedBox(height: 20.0),
 
-                        //EMAIL
+                        // email
                         Container(
                             child: BuildTextFormField(
                           text: "Email",
@@ -166,7 +164,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         )),
                         SizedBox(height: 20.0),
 
-                        //TEMPAT LAHIR
+                        // tempat lahir
                         Container(
                           child: BuildTextFormField(
                             text: "Tempat Lahir",
@@ -178,7 +176,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                         SizedBox(height: 20.0),
 
-                        //TANGGAL LAHIR
+                        // tanggal lahir
                         Container(
                           child: BuildTextFormField(
                             text: "Tanggal Lahir",
@@ -194,7 +192,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                         SizedBox(height: 20.0),
 
-                        //NOMOR HANDPHONE
+                        // no hp
                         Container(
                             child: BuildTextFormField(
                           text: "No. Handphone",
@@ -204,7 +202,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         )),
                         SizedBox(height: 20.0),
 
-                        //NOMOR HANDPHONE
+                        // jenis kelamin
                         Container(
                           child: BuildTextFormField(
                             text: "Jenis Kelamin",
@@ -236,7 +234,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                         SizedBox(height: 20.0),
 
-                        // ALAMAT
+                        // alamat
                         Container(
                           child: BuildTextFormField(
                             text: "Alamat",
@@ -251,112 +249,47 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                         SizedBox(height: 20.0),
 
-                        // PROVINSI
+                        // provinsi
                         Container(
                           child: Consumer<Alamat>(
                             builder: (context, value, child) {
                               return BuildDropdown(
                                 label: "Provinsi",
                                 value: valueProvinsi,
-                                items: value.dataProvinsi.map((e) {
-                                  return DropdownMenuItem(
-                                    child: Text(e['nama']),
-                                    value: e['id'],
-                                    onTap: () {
-                                      namaProvinsi = e['nama'];
-                                    },
-                                  );
-                                }).toList(),
-                                // onchanged: (value) {
-                                //   setState(() {
-                                //     valueProvinsi = value;
-                                //     valueKota = null;
-                                //     valueKecamatan = null;
-                                //     valueKelurahan = null;
-                                //   });
-                                //   alamatProvider.getKota(value);
-                                // },
                               );
                             },
                           ),
                         ),
                         SizedBox(height: 20.0),
 
-                        // KABUPATEN / KOTA
+                        // kota
                         Container(child: Consumer<Alamat>(
                           builder: (context, value, child) {
                             return BuildDropdown(
                               label: "Kota / Kabupaten",
                               value: valueKota,
-                              items: value.dataKota.map((e) {
-                                return DropdownMenuItem(
-                                  child: Text(e['nama']),
-                                  value: e['id'],
-                                  onTap: () {
-                                    namaKota = e['nama'];
-                                  },
-                                );
-                              }).toList(),
-                              // onchanged: (value) {
-                              //   setState(() {
-                              //     valueKota = value;
-                              //     valueKecamatan = null;
-                              //     valueKelurahan = null;
-                              //   });
-                              //   alamatProvider.getKecamatan(value);
-                              // },
                             );
                           },
                         )),
                         SizedBox(height: 20.0),
 
-                        //KECAMATAN
+                        // kecamatan
                         Container(child: Consumer<Alamat>(
                           builder: (context, value, child) {
                             return BuildDropdown(
                               label: "Kecamatan",
                               value: valueKecamatan,
-                              items: value.dataKecamatan.map((e) {
-                                return DropdownMenuItem(
-                                  child: Text(e['nama']),
-                                  value: e['id'],
-                                  onTap: () {
-                                    namaKecamatan = e['nama'];
-                                  },
-                                );
-                              }).toList(),
-                              // onchanged: (value) {
-                              //   setState(() {
-                              //     valueKecamatan = value;
-                              //     valueKelurahan = null;
-                              //   });
-                              //   alamatProvider.getKelurahan(value);
-                              // },
                             );
                           },
                         )),
                         SizedBox(height: 20.0),
 
-                        ///INPUT KELURAHAN
+                        // kelurahan
                         Container(child: Consumer<Alamat>(
                           builder: (context, value, child) {
                             return BuildDropdown(
                               label: "Kelurahan",
                               value: valueKelurahan,
-                              items: value.dataKelurahan.map((e) {
-                                return DropdownMenuItem(
-                                  child: Text(e['nama']),
-                                  value: e['id'],
-                                  onTap: () {
-                                    namaKelurahan = e['nama'];
-                                  },
-                                );
-                              }).toList(),
-                              // onchanged: (value) {
-                              //   setState(() {
-                              //     valueKelurahan = value;
-                              //   });
-                              // },
                             );
                           },
                         )),

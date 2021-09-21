@@ -5,10 +5,10 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:flutter_dropdown_alert/alert_controller.dart';
 import 'package:flutter_dropdown_alert/model/data_alert.dart';
-import 'package:presensi_app/models/model_presensi.dart';
-import 'package:presensi_app/models/model_setting.dart';
 
-import 'package:presensi_app/provider/api.dart';
+import '../models/model_presensi.dart';
+import '../models/model_setting.dart';
+import './api.dart';
 
 class Presensi with ChangeNotifier {
   static final Presensi _presensi = Presensi._internal();

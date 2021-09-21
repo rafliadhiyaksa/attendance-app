@@ -4,7 +4,7 @@ import 'package:supercharged/supercharged.dart';
 class BuildDropdown extends StatelessWidget {
   BuildDropdown({
     Key? key,
-    required this.items,
+    this.items,
     required this.label,
     this.onchanged,
     this.value,

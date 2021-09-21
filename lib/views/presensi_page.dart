@@ -2,17 +2,17 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
-import 'package:presensi_app/provider/karyawan.dart';
-import 'package:presensi_app/provider/presensi.dart';
 import 'package:provider/provider.dart';
 import 'package:supercharged/supercharged.dart';
 import 'package:timer_builder/timer_builder.dart';
 import 'package:intl/intl.dart';
 
-import 'package:presensi_app/service/camera_service.dart';
-import 'package:presensi_app/service/face_recognition_service.dart';
-import 'package:presensi_app/service/ml_kit_service.dart';
-import 'package:presensi_app/widgets/face_painter.dart';
+import '../provider/presensi.dart';
+import '../provider/karyawan.dart';
+import '../service/camera_service.dart';
+import '../service/face_recognition_service.dart';
+import '../service/ml_kit_service.dart';
+import '../widgets/face_painter.dart';
 
 class PresensiPage extends StatefulWidget {
   final CameraDescription cameraDescription;
@@ -77,8 +77,10 @@ class _PresensiPageState extends State<PresensiPage> {
 
   @override
   void dispose() {
-    this._faceRecognitionService.setCurrFaceData([]);
     _cameraService.dispose();
+    _faceRecognitionService.dispose();
+    _faceRecognitionService.setCurrFaceData([]);
+    _mlKitService.close();
     super.dispose();
   }
 

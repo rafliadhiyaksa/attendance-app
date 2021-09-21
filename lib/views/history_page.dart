@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:presensi_app/provider/presensi.dart';
 import 'package:provider/provider.dart';
 import 'package:supercharged/supercharged.dart';
 import 'package:intl/intl.dart';
+
+import '../provider/presensi.dart';
 
 class HistoryPage extends StatefulWidget {
   HistoryPage({Key? key}) : super(key: key);
@@ -86,7 +87,8 @@ class _HistoryPageState extends State<HistoryPage> {
               padding: EdgeInsets.only(top: 30),
               width: width,
               child: !loading
-                  ? (presensiProvider.jumlahPresensi == 0)
+                  ? (presensiProvider.jumlahPresensi == 0 &&
+                          presensiProvider.jumlahSetting == 0)
                       ? Container(
                           alignment: Alignment.center,
                           height: (height - statusBar) * 0.65,

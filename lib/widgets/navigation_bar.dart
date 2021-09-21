@@ -2,13 +2,14 @@ import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.da
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:presensi_app/view/presensi_page.dart';
 import 'package:supercharged/supercharged.dart';
-import 'package:presensi_app/service/face_recognition_service.dart';
-import 'package:presensi_app/service/ml_kit_service.dart';
-import 'package:presensi_app/view/history_page.dart';
-import 'package:presensi_app/view/home_page.dart';
 import 'package:intl/date_symbol_data_local.dart';
+
+import '../service/face_recognition_service.dart';
+import '../service/ml_kit_service.dart';
+import '../views/presensi_page.dart';
+import '../views/history_page.dart';
+import '../views/home_page.dart';
 
 class NavigationBar extends StatefulWidget {
   NavigationBar({Key? key}) : super(key: key);

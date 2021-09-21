@@ -1,18 +1,16 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dropdown_alert/model/data_alert.dart';
 import 'package:flutter_dropdown_alert/alert_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:path_provider/path_provider.dart';
 
-import 'package:presensi_app/service/face_recognition_service.dart';
-import 'package:presensi_app/widgets/build_profile_picture.dart';
-import 'package:presensi_app/models/model_karyawan.dart';
-import 'package:presensi_app/provider/api.dart';
+import '../service/face_recognition_service.dart';
+import '../widgets/build_profile_picture.dart';
+import '../models/model_karyawan.dart';
+import './api.dart';
 
 class Karyawan with ChangeNotifier {
   static final Karyawan _karyawan = Karyawan._internal();
@@ -61,35 +59,14 @@ class Karyawan with ChangeNotifier {
       'kota': _tempDataKaryawan.kota,
       'kecamatan': _tempDataKaryawan.kecamatan,
       'kelurahan': _tempDataKaryawan.kelurahan,
-      // 'profilImg': _tempDataKaryawan.profilImg,
       'profilImg': _tempDataKaryawan.profilImg,
       'dataWajah': _tempDataKaryawan.dataWajah.toString(),
     });
     sharedPref.setString('authData', sharedPrefAuth);
-    // String? currImg = await sharedPref.getStringList('imageData');
     notifyListeners();
   }
 
   bool get isAuth => dataKaryawan.idKaryawan != null ? true : false;
-
-  Future<void> urlToFile(String imageName) async {
-    print("BUILD 1");
-    Directory tempDir = await getTemporaryDirectory();
-    String tempPath = tempDir.path;
-    File file = new File('$tempPath/' + imageName);
-    http.Response response =
-        await http.get(Uri.parse(BaseUrl.uploadAPI + imageName));
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      Uint8List uint8List = response.bodyBytes;
-      var buffer = uint8List.buffer;
-      ByteData byteData = ByteData.view(buffer);
-      file = await file.writeAsBytes(
-          buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
-      img = file;
-    } else {
-      _failed("Error", "Connection Timeout");
-    }
-  }
 
   void _success(String message) {
     AlertController.show(
@@ -112,8 +89,8 @@ class Karyawan with ChangeNotifier {
     var response =
         await http.get(Uri.parse(BaseUrl.karyawanAPI + "data_wajah"));
     if (response.statusCode >= 200 && response.statusCode < 300) {
-      List dataResponse = json.decode(response.body)['data'];
-      dataResponse.forEach((element) {
+      List data = json.decode(response.body)['data'];
+      data.forEach((element) {
         int idKaryawan = jsonDecode(element['ID_KARYAWAN']);
         List dataWajah = jsonDecode(element['DATA_WAJAH']);
         var wajah = ModelKaryawan(
@@ -137,11 +114,10 @@ class Karyawan with ChangeNotifier {
     });
 
     if (response.statusCode >= 200 && response.statusCode < 300) {
-      List dataResponse = json.decode(response.body)['data'];
-      dataResponse.forEach((element) {
+      List data = json.decode(response.body)['data'];
+      data.forEach((element) {
         List dataWajah = jsonDecode(element['DATA_WAJAH']);
         int idKaryawan = jsonDecode(element['ID_KARYAWAN']);
-        // print("BUILD 1");
         _tempDataKaryawan = ModelKaryawan(
           idKaryawan: idKaryawan,
           namaDepan: element['NAMA_DEPAN'],
@@ -158,11 +134,9 @@ class Karyawan with ChangeNotifier {
           kecamatan: element['KECAMATAN'],
           kelurahan: element['KELURAHAN'],
           profilImg: element['PROFIL_IMG'],
-          // profilImg: img,
           dataWajah: dataWajah,
         );
       });
-
       notifyListeners();
     } else {
       _failed("Error ${response.statusCode}", "Connection Timeout");
@@ -233,7 +207,8 @@ class Karyawan with ChangeNotifier {
   ///Edit data karyawan
   Future<void> editData(
     String id,
-    String nama,
+    String namaDepan,
+    String namaBelakang,
     String email,
     String noHp,
     String jabatan,
@@ -245,7 +220,8 @@ class Karyawan with ChangeNotifier {
   ) async {
     var request =
         http.MultipartRequest('POST', Uri.parse(BaseUrl.karyawanAPI + id));
-    request.fields['NAMA'] = nama;
+    request.fields['NAMA_DEPAN'] = namaDepan;
+    request.fields['NAMA_BELAKANG'] = namaBelakang;
     request.fields['EMAIL'] = email;
     request.fields['NO_HP'] = noHp;
     request.fields['ID_JABATAN'] = jabatan;

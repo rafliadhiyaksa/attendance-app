@@ -44,9 +44,11 @@ class _ProfilePictureState extends State<ProfilePicture> {
               backgroundColor: Colors.grey.shade300,
               backgroundImage: ProfilePicture.image != null
                   ? FileImage(ProfilePicture.image!)
-                  : NetworkImage(
-                          BaseUrl.uploadAPI + provider.profilImg.toString())
-                      as ImageProvider,
+                  : provider.profilImg == null
+                      ? null
+                      : NetworkImage(
+                              BaseUrl.uploadAPI + provider.profilImg.toString())
+                          as ImageProvider,
               child: ProfilePicture.image == null && provider.profilImg == null
                   ? FaIcon(
                       FontAwesomeIcons.userAlt,
@@ -99,6 +101,7 @@ class _ProfilePictureState extends State<ProfilePicture> {
   _loadPicker(ImageSource source) async {
     final pickedFile = await picker.pickImage(source: source);
     if (pickedFile != null) {
+      print(pickedFile.path);
       File pickedImage = File(pickedFile.path);
       _cropImage(pickedImage);
     }

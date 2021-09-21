@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:presensi_app/provider/api.dart';
-import 'package:presensi_app/provider/karyawan.dart';
 import 'package:provider/provider.dart';
 import 'package:supercharged/supercharged.dart';
 import 'package:intl/intl.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:intl/intl.dart';
 
-import 'package:presensi_app/provider/presensi.dart';
+import '../provider/karyawan.dart';
+import '../provider/api.dart';
+import '../provider/presensi.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key? key}) : super(key: key);
